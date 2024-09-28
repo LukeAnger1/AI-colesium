@@ -4,12 +4,14 @@ import aic2024.user.*;
 
 import V2.navigation.*;
 import V2.constants.*;
+import V2.helper.*;
 
 public class UnitPlayer {
 
     // BRO literally have to add these fucking lines because statics are banned
     public final constants constants = new constants();
     public final navigation navigation = new navigation();
+    public final helper helper = new helper();
 
     public void run(UnitController uc) {
         // Code to be executed only at the beginning of the unit's lifespan
@@ -38,8 +40,9 @@ public class UnitPlayer {
             constants.isStructure = false;
         }
 
-
-
+        // get the map X and Y
+        constants.width = uc.getMapWidth();
+        constants.height = uc.getMapHeight();
 
         while (true) {
 
@@ -64,9 +67,21 @@ public class UnitPlayer {
                 // Scan the surrounding objects
                 // Get our astraunauts
                 AstronautInfo[] myAstronauts = uc.senseAstronauts((float) constants.visionRadius, constants.myTeam);
+                // Get the map locations
+                Location[] myAstronautLocs = new Location[myAstronauts.length];
+                for (int index = 0; index < myAstronauts.length; index ++) {
+                    myAstronautLocs[index] = myAstronauts[index].getLocation();
+                }
+
+                uc.println("here 12");
 
                 // Get the opponent astraunauts
                 AstronautInfo[] opponentAstronauts = uc.senseAstronauts((float) constants.visionRadius, constants.opponentTeam);
+                // Get the map locations
+                Location[] oponnentAstronautLocs = new Location[opponentAstronauts.length];
+                for (int index = 0; index < opponentAstronauts.length; index ++) {
+                    oponnentAstronautLocs[index] = opponentAstronauts[index].getLocation();
+                }
 
                 // Get the objects
                 // DOME
@@ -93,12 +108,33 @@ public class UnitPlayer {
 
                 // Get my structures
                 StructureInfo[] myStructures = uc.senseStructures((float) constants.visionRadius, constants.myTeam);
+                // Get the map locations
+                Location[] myStructureLocs = new Location[myStructures.length];
+                for (int index = 0; index < myStructures.length; index ++) {
+                    myStructureLocs[index] = myStructures[index].getLocation();
+                }
+
+                uc.println("here 13");
 
                 // Get opponent structures
                 StructureInfo[] opponentStructures = uc.senseStructures((float) constants.visionRadius, constants.opponentTeam);
+                // Get the map locations
+                Location[] opponentStructureLocs = new Location[opponentStructures.length];
+                for (int index = 0; index < opponentStructures.length; index ++) {
+                    opponentStructureLocs[index] = opponentStructures[index].getLocation();
+                }
+
+                uc.println("here 15");
+
+                // This is the array of everything that is in the way
+                Location[] obstacles = helper.combineArrays(uc, myAstronautLocs, oponnentAstronautLocs, domes, water);
+
+                uc.println("here 17");
 
                 // Do the navigation stuff
-                navigation.navigateTo(uc, null, null, null);
+                navigation.navigateTo(uc, null, new Location(constants.width / 2, constants.height / 2), obstacles);
+
+                uc.println("here 16");
 
                 //Check if there are Care Packages at an adjacent tile. If so, retrieve them.
                 for (Direction dir : constants.directions) {
@@ -112,6 +148,8 @@ public class UnitPlayer {
                         }
                     }
                 }
+
+                uc.println("here 14");
 
                 //If we have 1 or 2 oxygen left, terraform my tile (alternatively, terraform a random tile)
                 if (uc.getAstronautInfo().getOxygen() <= 2) {

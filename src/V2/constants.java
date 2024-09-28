@@ -10,4 +10,6 @@ public class constants {
     public StructureType type;
     public int visionRadius;
     public boolean isStructure;
+    public int width;
+    public int height;
 }

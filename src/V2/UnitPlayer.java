@@ -47,7 +47,7 @@ public class UnitPlayer {
         while (true) {
 
             //Case in which we are a HQ
-            // NOTE: Dont run isBeingConstructed
+            // IMPORTANT TODO: limit making astraunauts as they cost oxygen
             if (constants.isStructure && uc.getType() == StructureType.HQ) {
                 uc.println("I am HQ going to do HQ stuff");
                 //Spawn exactly one astronaut with 30 oxygen, if possible

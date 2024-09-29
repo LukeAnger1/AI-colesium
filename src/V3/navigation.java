@@ -96,16 +96,27 @@ public class navigation {
             explorationDir = getRandomDirection(uc);
         }
 
-        for (int count = 0; count < 8; count ++) {
-            // Check if we can move in the exploration direction
-            if (uc.canPerformAction(ActionType.MOVE, explorationDir, 0)) {
-                return explorationDir;
-            }
-            // Should change this up more
-            explorationDir = explorationDir.rotateRight();
+        if (uc.canPerformAction(ActionType.MOVE, explorationDir, 0)) {
+            return explorationDir;
         }
 
-        return null;
+        int possibleDirCount = 0;
+        Direction[] possibleDirs = new Direction[8];
+
+        for (int count = 0; count < 8; count ++) {
+            // Check if we can move in the exploration direction then record it
+            if (uc.canPerformAction(ActionType.MOVE, constants.directions[count], 0)) {
+                possibleDirs[possibleDirCount] = constants.directions[count];
+                possibleDirCount++;
+            }
+        }
+
+        if (possibleDirCount == 0) {
+            return null;
+        }
+
+        explorationDir = constants.directions[getRandomInt(uc, possibleDirCount)];
+        return explorationDir;
     }
     ////////// NOTE: Make sure these functions also make sure the uc can move in that direction before returning //////////
 
@@ -115,10 +126,14 @@ public class navigation {
     }
 
     public Direction getRandomDirection(UnitController uc) {
-        return constants.directions[(int)(uc.getRandomDouble()*8.0)];
+        return constants.directions[getRandomInt(uc, 8)];
     }
 
     public Direction getRandomLegalDirection(UnitController uc) {
         return null;
+    }
+
+    public int getRandomInt(UnitController uc, int amount) {
+        return (int)(uc.getRandomDouble()*(double)amount);
     }
 }

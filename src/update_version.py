@@ -32,11 +32,11 @@ def copy_and_replace_package(src_folder, dest_folder, old_name, new_name):
             if old_name in file_name:
                 new_file_name = file_name.replace(old_name, new_name)
                 os.rename(file_path, os.path.join(root, new_file_name))
+if __name__ == '__main__':
+	# Example usage
+	src_folder = input('V(old number): ')  # Replace with the source package folder
+	dest_folder = input('V(new number): ') # Replace with the destination folder
+	old_name = src_folder # 'OldPackageName'         # Replace with the old package name
+	new_name = dest_folder # 'NewPackageName'         # Replace with the new package name
 
-# Example usage
-src_folder = input('path/to/old/package')  # Replace with the source package folder
-dest_folder = input('path/to/new/package') # Replace with the destination folder
-old_name = src_folder # 'OldPackageName'         # Replace with the old package name
-new_name = dest_folder # 'NewPackageName'         # Replace with the new package name
-
-copy_and_replace_package(src_folder, dest_folder, old_name, new_name)
+	copy_and_replace_package(src_folder, dest_folder, old_name, new_name)

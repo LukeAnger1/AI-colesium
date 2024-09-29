@@ -12,9 +12,7 @@ public class UnitPlayer {
     public final constants constants = new constants();
     public final navigation navigation = new navigation(constants);
     public final helper helper = new helper();
-
-    // Bro this is fucking stupid, why are statics illegal
-    public final StructureTypeByte StructureTypeByteEnum = StructureTypeByte.LANDS;
+    public map map;
 
     public void run(UnitController uc) {
         // Code to be executed only at the beginning of the unit's lifespan
@@ -47,6 +45,11 @@ public class UnitPlayer {
         constants.width = uc.getMapWidth();
         constants.height = uc.getMapHeight();
 
+        // Set up the map
+        map = new map(helper, constants, constants.width, constants.height);
+
+        uc.println("finished up first turn shit going into regular shit");
+
         while (true) {
 
             //Case in which we are a HQ
@@ -65,10 +68,11 @@ public class UnitPlayer {
             // Code to be executed every round, if we are astraunaut and not being made
             if (!constants.isStructure && !uc.getAstronautInfo().isBeingConstructed()) {
 
+                // record everything for the turn
+                map.record(uc);
+
                 // Do the navigation stuff
                 navigation.navigateTo(uc, null, new Location(constants.width / 2, constants.height / 2), null);
-
-                uc.println("here 16");
 
                 //Check if there are Care Packages at an adjacent tile. If so, retrieve them.
                 for (Direction dir : constants.directions) {
@@ -82,8 +86,6 @@ public class UnitPlayer {
                         }
                     }
                 }
-
-                uc.println("here 14");
 
                 //If we have 1 or 2 oxygen left, terraform my tile (alternatively, terraform a random tile)
                 if (uc.getAstronautInfo().getOxygen() <= 2) {
@@ -106,7 +108,7 @@ public class UnitPlayer {
                 }
             }
 
-            uc.println("here 3");
+            uc.println("ending my fucking turn");
 
             uc.yield(); // End of turn
         }

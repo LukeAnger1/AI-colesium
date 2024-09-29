@@ -9,9 +9,10 @@ public class map {
 
     // See constants for break down on the grid
     public byte[][] grid_shit;
+    public int x;
+    public int y;
     public constants constants;
     public helper helper;
-    public StructureTypeByte StructureTypeByte;
 
     // These are things that are saved turn by turn
     public AstronautInfo[] myAstronauts;
@@ -30,11 +31,12 @@ public class map {
 
 
 
-    public map (helper helper, constants constants, StructureTypeByte StructureTypeByte, int x, int y) {
+    public map (helper helper, constants constants, int x, int y) {
         grid_shit = new byte[x][y];
+        this.x = x;
+        this.y = y;
         this.constants = constants;
         this.helper = helper;
-        this.StructureTypeByte = StructureTypeByte;
     }
 
     public byte getByte(Location loc) {
@@ -42,6 +44,7 @@ public class map {
     }
 
     // This will setup all the information for the turn, make sure to run it every turn for the ionformation that is needed
+    // TODO: Update the game map with more information later
     public void record(UnitController uc) {
 
         // Scan the surrounding objects
@@ -88,6 +91,7 @@ public class map {
         // NOTE: May not have to run all of these checks
         water = uc.senseObjects(MapObject.WATER, (float) constants.visionRadius);
         for (Location waterLoc : water) {
+            uc.println("adding water to " + waterLoc.x + " " + waterLoc.y);
             grid_shit[waterLoc.x][waterLoc.y] = StructureTypeByte.WATER.getValue();
         }
 
@@ -109,6 +113,22 @@ public class map {
 
         // This is the array of everything that is in the way
 //        obstacles = helper.combineArrays(uc, myAstronautLocs, oponnentAstronautLocs, domes, water);
+
+        ///// Use this for debuging the map
+        for (int x = 0; x < this.x; x ++) {
+            for (int y = 0; y < this.y; y++) {
+                // mark the water
+                if (this.grid_shit[x][y] == StructureTypeByte.WATER.getValue()) {
+                    uc.drawPointDebug(new Location(x, y), 0, 0, 255);
+                }
+//                // mark the land
+//                if (grid_shit[x][y] == StructureTypeByte.LANDS.getValue()) {
+//                    uc.drawPointDebug(new Location(x, y), 0, 255, 0);
+//                }
+            }
+        }
+
+        ///// Use this for debugging the map
 
     }
 }

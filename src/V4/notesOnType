@@ -1,0 +1,36 @@
+package V3;
+
+import aic2024.user.StructureType;
+
+public enum StructureTypeByte {
+    LANDS((byte) 0),
+    MY_PERMANENT_STRUCTURE((byte) 1),
+    OPPONENT_PERMANENT_STRUCTURE((byte) 2),
+    MY_TEMPORARY_STRUCTURES((byte) 3),
+    OPPONENT_TEMPORARY_STRUCTURES((byte) 4),
+    DOMES((byte) 5),
+    HOT_ZONES((byte) 6),
+    WATER((byte) 7);
+
+    private final byte value;
+
+    // Constructor
+    StructureTypeByte(byte value) {
+        this.value = value;
+    }
+
+    // Getter method to retrieve the byte value
+    public byte getValue() {
+        return value;
+    }
+
+    // Method to get enum from byte value
+    public StructureTypeByte fromValue(byte value) {
+        for (StructureTypeByte type : StructureTypeByte.values()) {
+            if (type.getValue() == value) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("Invalid value: " + value);
+    }
+}

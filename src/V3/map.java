@@ -92,7 +92,7 @@ public class map {
         water = uc.senseObjects(MapObject.WATER, (float) constants.visionRadius);
         for (Location waterLoc : water) {
             uc.println("adding water to " + waterLoc.x + " " + waterLoc.y);
-            grid_shit[waterLoc.x][waterLoc.y] = StructureTypeByte.WATER.getValue();
+            grid_shit[waterLoc.x][waterLoc.y] = constants.water;
         }
 
         // Get my structures
@@ -118,7 +118,7 @@ public class map {
         for (int x = 0; x < this.x; x ++) {
             for (int y = 0; y < this.y; y++) {
                 // mark the water
-                if (this.grid_shit[x][y] == StructureTypeByte.WATER.getValue()) {
+                if (this.grid_shit[x][y] == constants.water) {
                     uc.drawPointDebug(new Location(x, y), 0, 0, 255);
                 }
 //                // mark the land

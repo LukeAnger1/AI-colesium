@@ -13,6 +13,8 @@ public class constants {
     public int width;
     public int height;
 
+    public final byte water = 7;
+
     // TODO: the below
     // 8. hyper jump (semi permanent)
     // 9. terraforms (semi permanent)

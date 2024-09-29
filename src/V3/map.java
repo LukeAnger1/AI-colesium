@@ -56,6 +56,8 @@ public class map {
             myAstronautLocs[index] = myAstronauts[index].getLocation();
         }
 
+        uc.println("checking amount left inside map 2 " + uc.getPercentageOfEnergyLeft());
+
         // Get the opponent astraunauts
         opponentAstronauts = uc.senseAstronauts((float) constants.visionRadius, constants.opponentTeam);
         // Get the map locations
@@ -70,7 +72,7 @@ public class map {
         // reset the DOMES that arent there
 
         // Save the DOMES
-
+        uc.println("checking amount left inside map 3 " + uc.getPercentageOfEnergyLeft());
 
         // DOME TILES
         // Location[] domeTiles = uc.senseObjects(MapObject.DOMED_TILE, (float) constants.visionRadius);
@@ -84,6 +86,8 @@ public class map {
         // LAND
         lands = uc.senseObjects(MapObject.LAND, (float) constants.visionRadius);
 
+        uc.println("checking amount left inside map 4 " + uc.getPercentageOfEnergyLeft());
+
         // TERRAFORMED
         terraforms = uc.senseObjects(MapObject.TERRAFORMED, (float) constants.visionRadius);
 
@@ -92,6 +96,7 @@ public class map {
         water = uc.senseObjects(MapObject.WATER, (float) constants.visionRadius);
         for (Location waterLoc : water) {
             uc.println("adding water to " + waterLoc.x + " " + waterLoc.y);
+            uc.println("checking amount left inside map water " + uc.getPercentageOfEnergyLeft());
             grid_shit[waterLoc.x][waterLoc.y] = constants.water;
         }
 
@@ -111,22 +116,26 @@ public class map {
             opponentStructureLocs[index] = opponentStructures[index].getLocation();
         }
 
+        uc.println("checking amount left inside map 5 " + uc.getPercentageOfEnergyLeft());
+
         // This is the array of everything that is in the way
 //        obstacles = helper.combineArrays(uc, myAstronautLocs, oponnentAstronautLocs, domes, water);
 
-        ///// Use this for debuging the map
-        for (int x = 0; x < this.x; x ++) {
-            for (int y = 0; y < this.y; y++) {
-                // mark the water
-                if (this.grid_shit[x][y] == constants.water) {
-                    uc.drawPointDebug(new Location(x, y), 0, 0, 255);
-                }
-//                // mark the land
-//                if (grid_shit[x][y] == StructureTypeByte.LANDS.getValue()) {
-//                    uc.drawPointDebug(new Location(x, y), 0, 255, 0);
+        ///// Use this for debuging the map, causes too much energy loss (byte code loss)
+//        for (int x = 0; x < this.x; x ++) {
+//            for (int y = 0; y < this.y; y++) {
+//                // mark the water
+//                if (this.grid_shit[x][y] == constants.water) {
+//                    uc.drawPointDebug(new Location(x, y), 0, 0, 255);
 //                }
-            }
-        }
+////                // mark the land
+////                if (grid_shit[x][y] == StructureTypeByte.LANDS.getValue()) {
+////                    uc.drawPointDebug(new Location(x, y), 0, 255, 0);
+////                }
+//            }
+//        }
+
+        uc.println("checking amount left inside map 6 " + uc.getPercentageOfEnergyLeft());
 
         ///// Use this for debugging the map
 

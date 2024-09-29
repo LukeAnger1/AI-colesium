@@ -65,14 +65,19 @@ public class UnitPlayer {
                 }
             }
 
+            uc.println("checking amount left 1 " + uc.getPercentageOfEnergyLeft());
+
             // Code to be executed every round, if we are astraunaut and not being made
             if (!constants.isStructure && !uc.getAstronautInfo().isBeingConstructed()) {
 
                 // record everything for the turn
                 map.record(uc);
+                uc.println("checking amount left 1.1 " + uc.getPercentageOfEnergyLeft());
 
                 // Do the navigation stuff
                 navigation.navigateTo(uc, null, new Location(constants.width / 2, constants.height / 2), null);
+
+                uc.println("checking amount left 1.2 " + uc.getPercentageOfEnergyLeft());
 
                 //Check if there are Care Packages at an adjacent tile. If so, retrieve them.
                 for (Direction dir : constants.directions) {
@@ -86,6 +91,8 @@ public class UnitPlayer {
                         }
                     }
                 }
+
+                uc.println("checking amount left 2 " + uc.getPercentageOfEnergyLeft());
 
                 //If we have 1 or 2 oxygen left, terraform my tile (alternatively, terraform a random tile)
                 if (uc.getAstronautInfo().getOxygen() <= 2) {
@@ -106,6 +113,8 @@ public class UnitPlayer {
                         }
                     }
                 }
+
+                uc.println("checking amount left 3 " + uc.getPercentageOfEnergyLeft());
             }
 
             uc.println("ending my fucking turn");

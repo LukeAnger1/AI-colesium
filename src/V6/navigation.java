@@ -138,6 +138,8 @@ public class navigation {
 
     // IMPORTANT NOTE: Because we are always reseting the line there is a scenario where we are looped back onto itself
     public Direction greedyBFS(UnitController uc, Location start, Location end, Location[] objects) {
+        // NOTE: Can optimize by only doing the first obstacle and only if there is an obstacl in the way
+        // IMPORTANT TODO: Change the code to instead choose the square with the least steps to get to end
         if (end == null) {
             return null;
         }

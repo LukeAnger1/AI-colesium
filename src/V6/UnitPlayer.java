@@ -12,6 +12,7 @@ public class UnitPlayer {
     public final helper helper = new helper();
     public map map;
     public target target;
+    public CarePackage myCarePackage;
 
     public void run(UnitController uc) {
         // Code to be executed only at the beginning of the unit's lifespan
@@ -38,6 +39,9 @@ public class UnitPlayer {
 
             // Sets the is struct to false
             constants.isStructure = false;
+
+            // Gets the care package informartion
+            myCarePackage = uc.getAstronautInfo().getCarePackage();
         }
 
         // get the map X and Y
@@ -53,6 +57,7 @@ public class UnitPlayer {
         // set up the navigation
         navigation = new navigation(constants, map);
 
+
         uc.println("finished up first turn shit going into regular shit");
 
         while (true) {
@@ -63,6 +68,19 @@ public class UnitPlayer {
                 uc.println("I am HQ going to do HQ stuff");
 
                 for (Direction dir : constants.directions) {
+                    // Settlement
+                    uc.println("trying to make an settlement");
+                    if (uc.canEnlistAstronaut(dir, constants.oxygenWithPackage, CarePackage.SETTLEMENT)) {
+                        uc.println("I think I can build");
+                        uc.enlistAstronaut(dir, constants.oxygenWithPackage, CarePackage.SETTLEMENT);
+                        uc.println("after trying to build");
+                        break;
+                    }
+                    // Dome
+                    if (uc.canEnlistAstronaut(dir, constants.oxygenWithPackage, CarePackage.DOME)) {
+                        uc.enlistAstronaut(dir, constants.oxygenWithPackage, CarePackage.DOME);
+                        break;
+                    }
                     // Reinforced suit
                     if (uc.canEnlistAstronaut(dir, constants.oxygenWithPackage, CarePackage.REINFORCED_SUIT)) {
                         uc.enlistAstronaut(dir, constants.oxygenWithPackage, CarePackage.REINFORCED_SUIT);
@@ -78,26 +96,16 @@ public class UnitPlayer {
                         uc.enlistAstronaut(dir, constants.oxygenWithPackage, CarePackage.RADIO);
                         break;
                     }
-                    // Settlement
-                    if (uc.canEnlistAstronaut(dir, constants.oxygenWithPackage, CarePackage.SETTLEMENT)) {
-                        uc.enlistAstronaut(dir, constants.oxygenWithPackage, CarePackage.SETTLEMENT);
-                        break;
-                    }
                     // hyper jump
                     if (uc.canEnlistAstronaut(dir, constants.oxygenWithPackage, CarePackage.HYPERJUMP)) {
                         uc.enlistAstronaut(dir, constants.oxygenWithPackage, CarePackage.HYPERJUMP);
-                        break;
-                    }
-                    // Dome
-                    if (uc.canEnlistAstronaut(dir, constants.oxygenWithPackage, CarePackage.DOME)) {
-                        uc.enlistAstronaut(dir, constants.oxygenWithPackage, CarePackage.DOME);
                         break;
                     }
                     // Basic spawn
                     if (uc.canEnlistAstronaut(dir, constants.oxygenNoPackage, null)) {
                         uc.enlistAstronaut(dir, constants.oxygenNoPackage, null);
                         break;
-                    }
+                   }
                 }
             }
 
@@ -111,10 +119,13 @@ public class UnitPlayer {
                 uc.println("checking amount left 1.1 " + uc.getPercentageOfEnergyLeft());
 
                 // Get the targets to go after
-                Location end;
+                Location end = null;
 
-                // See if there are any packages near here
-                end = target.getClosestPackage(uc);
+                // only target care packages if u dont have one otherwiase there is a waste as picking one up kills u
+                if (myCarePackage == null) {
+                    // See if there are any packages near here
+                    end = target.getClosestPackage(uc);
+                }
 
                 // Pick the center of the map for shits and giggles, I dont really like this
                 // NOTE: targeting a location is significantly better
@@ -128,20 +139,57 @@ public class UnitPlayer {
 
                 uc.println("checking amount left 1.2 " + uc.getPercentageOfEnergyLeft());
 
-                //Check if there are Care Packages at an adjacent tile. If so, retrieve them.
-                for (Direction dir : constants.directions) {
-                    Location adjLocation = uc.getLocation().add(dir);
-                    if (!uc.canSenseLocation(adjLocation)) continue;
-                    CarePackage cp = uc.senseCarePackage(adjLocation);
-                    if (cp != null) {
-                        if (uc.canPerformAction(ActionType.RETRIEVE, dir, 0)) {
-                            uc.performAction(ActionType.RETRIEVE, dir, 0);
-                            break;
+                // Dont pick up care packages if u have a care package
+                if (myCarePackage == null) {
+                    //Check if there are Care Packages at an adjacent tile. If so, retrieve them.
+                    for (Direction dir : constants.directions) {
+                        Location adjLocation = uc.getLocation().add(dir);
+                        if (!uc.canSenseLocation(adjLocation)) continue;
+                        CarePackage cp = uc.senseCarePackage(adjLocation);
+                        if (cp != null) {
+                            if (uc.canPerformAction(ActionType.RETRIEVE, dir, 0)) {
+                                uc.performAction(ActionType.RETRIEVE, dir, 0);
+                                break;
+                            }
                         }
                     }
                 }
 
                 uc.println("checking amount left 2 " + uc.getPercentageOfEnergyLeft());
+
+                if (myCarePackage != null) {
+                    // If we are Dome build dome in a surrounding square
+                    // TODO: choose to build better than when we run out of oxygen
+                    if (myCarePackage.equals(CarePackage.DOME) && uc.getAstronautInfo().getOxygen() <= 2) {
+                        // Make this better later
+                        int dirIndex = (int) (uc.getRandomDouble() * 8.0);
+                        Direction randomDir = constants.directions[dirIndex];
+                        for (int i = 0; i < 8; ++i) {
+                            //Note that the 'value' of the following command is irrelevant.
+                            if (uc.canPerformAction(ActionType.BUILD_DOME, randomDir, 0)) {
+                                uc.performAction(ActionType.BUILD_DOME, randomDir, 0);
+                                break;
+                            }
+                            randomDir = randomDir.rotateRight();
+                        }
+                    }
+
+                    // If we are settlement build in a sourounding square
+                    // TODO: choose to build better than when we run out of oxygen
+                    if (myCarePackage.equals(CarePackage.SETTLEMENT) && uc.getAstronautInfo().getOxygen() <= 2) {
+                        // Make this better later
+                        int dirIndex = (int) (uc.getRandomDouble() * 8.0);
+                        Direction randomDir = constants.directions[dirIndex];
+                        for (int i = 0; i < 8; ++i) {
+                            //Note that the 'value' of the following command is irrelevant.
+                            if (uc.canPerformAction(ActionType.BUILD_SETTLEMENT, randomDir, 0)) {
+                                uc.performAction(ActionType.BUILD_SETTLEMENT, randomDir, 0);
+                                break;
+                            }
+                            randomDir = randomDir.rotateRight();
+                        }
+                    }
+                }
 
                 //If we have 1 or 2 oxygen left, terraform my tile (alternatively, terraform a random tile)
                 if (uc.getAstronautInfo().getOxygen() <= 2) {

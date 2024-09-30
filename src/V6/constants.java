@@ -15,6 +15,7 @@ public class constants {
 
     // This is the max squared distance for the map
     public int maxDist = 214748364;
+    public int min = -21478364;
 
     // This is the size of the ciruclar buffer
     public final int circularBufferSize = 100;
@@ -32,6 +33,52 @@ public class constants {
     // This is how much oxygen to make an astraunaut with
     public final int oxygenNoPackage = 30;
     public final int oxygenWithPackage = 50;
+
+    // This is how valuable eaach care package is, make negative to not collect
+    public final int DOME_VALUE = 10;
+    public final int HYPERJUMP_VALUE = -1; // TODO: implement the ones below to be able to use later
+    public final int OXYGEN_TANK_VALUE = 14;
+    public final int PLANTS_VALUE = 15;
+    public final int RADIO_VALUE = -1;
+    public final int REINFORCED_SUIT_VALUE = 6;
+    public final int SETTLEMENT_VALUE = -1;
+    public final int SURVIVAL_KIT_VALUE = 2;
+
+    // This function helps convert the CarePackage to the value (can't use enum because static is banned)
+    public int getCarePackageValue(CarePackage carePackage) {
+        if (carePackage == null) {
+            return -1;
+        }
+
+        if (carePackage.equals(CarePackage.DOME)) {
+            return DOME_VALUE;
+        }
+        if (carePackage.equals(CarePackage.HYPERJUMP)) {
+            return HYPERJUMP_VALUE;
+        }
+        if (carePackage.equals(CarePackage.OXYGEN_TANK)) {
+            return OXYGEN_TANK_VALUE;
+        }
+        if (carePackage.equals(CarePackage.PLANTS)) {
+            return PLANTS_VALUE;
+        }
+        if (carePackage.equals(CarePackage.RADIO)) {
+            return RADIO_VALUE;
+        }
+        if (carePackage.equals(CarePackage.REINFORCED_SUIT)) {
+            return REINFORCED_SUIT_VALUE;
+        }
+        if (carePackage.equals(CarePackage.SETTLEMENT)) {
+            return SETTLEMENT_VALUE;
+        }
+        if (carePackage.equals(CarePackage.SURVIVAL_KIT)) {
+            return SURVIVAL_KIT_VALUE;
+        }
+
+        // Return 0 or some default value if no match is found
+        return 0;
+    }
+
 
 
     // TODO: the below

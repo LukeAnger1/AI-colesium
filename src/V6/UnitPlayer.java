@@ -124,7 +124,7 @@ public class UnitPlayer {
                 // only target care packages if u dont have one otherwiase there is a waste as picking one up kills u
                 if (myCarePackage == null) {
                     // See if there are any packages near here
-                    end = target.getClosestPackage(uc);
+                    end = target.getClosestBestPackage(uc);
                 }
 
                 // Pick the center of the map for shits and giggles, I dont really like this

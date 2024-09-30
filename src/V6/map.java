@@ -225,7 +225,7 @@ public class map {
         }
 
         byte holder = grid_shit[x][y];
-        return holder == constants.land || holder == constants.hot_zones || holder == constants.travel;
+        return holder == constants.land || holder == constants.hot_zones || holder == constants.travel || holder == constants.domes;
     }
 
     ///// Find the symmerty information

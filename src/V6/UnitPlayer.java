@@ -121,8 +121,13 @@ public class UnitPlayer {
                 // Get the targets to go after
                 Location end = null;
 
+                // Go try to sabatoge
+                if (end == null) {
+                    end = target.getClosestEnemyStructure(uc);
+                }
+
                 // only target care packages if u dont have one otherwiase there is a waste as picking one up kills u
-                if (myCarePackage == null) {
+                if (myCarePackage == null && end == null) {
                     // See if there are any packages near here
                     end = target.getClosestBestPackage(uc);
                 }
@@ -139,12 +144,29 @@ public class UnitPlayer {
 
                 uc.println("checking amount left 1.2 " + uc.getPercentageOfEnergyLeft());
 
+                // Try to sabotage anything we are near
+                for (Direction dir : constants.directions) {
+                    Location adjLocation = uc.getLocation().add(dir);
+                    if (!uc.canSenseLocation(adjLocation)) continue;
+                    uc.println("Checking " + adjLocation + " to see if there is an opponent permanet structure");
+                    Location opponentStructureLoc = map.grid_shit[adjLocation.x][adjLocation.y] == constants.oppoennt_permanent_structure ? adjLocation: null;
+                    if (opponentStructureLoc != null) {
+                        uc.println("going to try to sabotage");
+                        if (uc.canPerformAction(ActionType.SABOTAGE, dir, 0)) {
+                            uc.println("Sabotaging");
+                            uc.performAction(ActionType.SABOTAGE, dir, 0);
+                            break;
+                        }
+                    }
+                }
+
                 // Dont pick up care packages if u have a care package
                 if (myCarePackage == null) {
                     //Check if there are Care Packages at an adjacent tile. If so, retrieve them.
                     for (Direction dir : constants.directions) {
                         Location adjLocation = uc.getLocation().add(dir);
                         if (!uc.canSenseLocation(adjLocation)) continue;
+                        // TODO: Change this to use grid_shit
                         CarePackage cp = uc.senseCarePackage(adjLocation);
                         if (cp != null) {
                             if (uc.canPerformAction(ActionType.RETRIEVE, dir, 0)) {

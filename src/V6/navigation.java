@@ -144,6 +144,8 @@ public class navigation {
             return null;
         }
 
+        uc.drawLineDebug(start, end, 0, 0, 255);
+
         // initialize the right hand rule
         Direction rightHandRule = start.directionTo(end);
 

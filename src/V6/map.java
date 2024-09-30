@@ -102,7 +102,10 @@ public class map {
         // Get the map locations
         opponentStructureLocs = new Location[opponentStructures.length];
         for (int index = 0; index < opponentStructures.length; index ++) {
-            opponentStructureLocs[index] = opponentStructures[index].getLocation();
+            Location holder = opponentStructures[index].getLocation();
+            opponentStructureLocs[index] = holder;
+            // Include this in the grid map
+            grid_shit[holder.x][holder.y] = constants.oppoennt_permanent_structure;
         }
 
         // Get care package info

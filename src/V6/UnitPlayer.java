@@ -149,20 +149,22 @@ public class UnitPlayer {
                     Location adjLocation = uc.getLocation().add(dir);
                     if (!uc.canSenseLocation(adjLocation)) continue;
                     uc.println("Checking " + adjLocation + " to see if there is an opponent permanet structure");
-                    Location opponentStructureLoc = map.grid_shit[adjLocation.x][adjLocation.y] == constants.oppoennt_permanent_structure ? adjLocation: null;
-                    if (opponentStructureLoc != null) {
-                        uc.println("going to try to sabotage");
-                        if (uc.canPerformAction(ActionType.SABOTAGE, dir, 0)) {
-                            uc.println("Sabotaging");
-                            uc.performAction(ActionType.SABOTAGE, dir, 0);
-                            break;
-                        }
+                    // TODO: Use grid logic later
+                    StructureInfo possibleEnemy = uc.senseStructure(adjLocation);
+                    if (possibleEnemy == null) continue;
+                    if (possibleEnemy.getTeam().equals(constants.myTeam)) continue;
+                    // Location opponentStructureLoc = map.grid_shit[adjLocation.x][adjLocation.y] == constants.oppoennt_permanent_structure ? adjLocation: null;
+                    uc.println("going to try to sabotage");
+                    if (uc.canPerformAction(ActionType.SABOTAGE, dir, 0)) {
+                        uc.println("Sabotaging");
+                        uc.performAction(ActionType.SABOTAGE, dir, 0);
+                        break;
                     }
                 }
 
                 // Dont pick up care packages if u have a care package
                 if (myCarePackage == null) {
-                    //Check if there are Care Packages at an adjacent tile. If so, retrieve them.
+                    //Check if there arsenseStructure(Location loc)e Care Packages at an adjacent tile. If so, retrieve them.
                     for (Direction dir : constants.directions) {
                         Location adjLocation = uc.getLocation().add(dir);
                         if (!uc.canSenseLocation(adjLocation)) continue;

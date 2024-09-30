@@ -9,8 +9,8 @@ public class map {
 
     // See constants for break down on the grid
     public byte[][] grid_shit;
-    public int x;
-    public int y;
+    public int width;
+    public int height;
     public constants constants;
     public helper helper;
     public UnitController uc;
@@ -38,8 +38,8 @@ public class map {
 
     public map (helper helper, constants constants, int x, int y, UnitController uc) {
         grid_shit = new byte[x][y];
-        this.x = x;
-        this.y = y;
+        this.width = x;
+        this.height = y;
         this.constants = constants;
         this.helper = helper;
         this.uc = uc;
@@ -226,5 +226,27 @@ public class map {
 
         byte holder = grid_shit[x][y];
         return holder == constants.land || holder == constants.hot_zones || holder == constants.travel;
+    }
+
+    ///// Find the symmerty information
+    // Function to calculate rotational symmetry
+    public int[] rotationalSymmetry(int x, int y) {
+        int newX = width - x - 1;
+        int newY = height - y - 1;
+        return new int[]{newX, newY};
+    }
+
+    // Function to calculate horizontal symmetry
+    public int[] horizontalSymmetry(int x, int y) {
+        int newX = width - x - 1;
+        int newY = y;
+        return new int[]{newX, newY};
+    }
+
+    // Function to calculate vertical symmetry
+    public int[] verticalSymmetry(int x, int y) {
+        int newX = x;
+        int newY = height - y - 1;
+        return new int[]{newX, newY};
     }
 }

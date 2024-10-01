@@ -101,13 +101,38 @@ public class UnitPlayer {
                     // Add in our location
                     constants.ourHQs[allyLocationsInInts.size()] = uc.getLocation();
 
-                    // Print this out for debuging
-//                    for (Location loc: constants.ourHQs) {
-//                        uc.println("I think there is an HQ at " + loc);
-//                    }
+                    // Save every possiblity of the symmetry
+                    constants.canBeVerticl = map.canStillBeVertical();
+                    constants.canBeHorizontal = map.canStillBeHorizontal();
+                    constants.canBeRotational = map.canStillBeRotational();
 
-                    // The possible symmetries with this information
-                    uc.println("th epossible symmetries are roational symmetry " + map.canStillBeRotational() + " vertical symmetry " + map.canStillBeVertical() + " can still be horizontal " + map.canStillBeHorizontal());
+                }
+
+                if (uc.getRound() == 3) {
+                    // broadcast the information
+                    comms.commBroadcast(comms.threeBooleanToInt(constants.canBeHorizontal, constants.canBeVerticl, constants.canBeRotational));
+                }
+
+                if (uc.getRound() == 4) {
+                    // We are going to cycle through the comms
+                    Buffer getSymmetries = comms.getAllComms();
+
+                    // Going to go through each comm and if a symmetry is false in this then we will update our own symmetry
+                    for (int index = 0; index < getSymmetries.size(); index ++) {
+                        boolean[] holder = comms.intToThreeBooleans(getSymmetries.get(index));
+                        if (!holder[0]) {
+                            constants.canBeHorizontal = false;
+                        }
+
+                        if (!holder[1]) {
+                            constants.canBeVerticl = false;
+                        }
+                        if (!holder[2]) {
+                            constants.canBeRotational = false;
+                        }
+                    }
+
+                    uc.println("the comms information is hor " + constants.canBeHorizontal + " rot " + constants.canBeRotational + " vet " + constants.canBeVerticl);
                 }
 
                 for (Direction dir : constants.directions) {

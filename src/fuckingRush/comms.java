@@ -69,4 +69,24 @@ public class comms {
         }
         uc.performAction(ActionType.BROADCAST, null, value);
     }
+
+    // got to be better way to do this but I am lazy
+    public int booleanToInt (boolean bool) {
+        return bool ? 1: 0;
+    }
+
+    // This will convert 3 booleans into an int and back again
+    public int threeBooleanToInt(boolean a, boolean b, boolean c) {
+        return 4*booleanToInt(a) + 2*booleanToInt(b) + booleanToInt(c);
+    }
+
+    // Convert an integer (0 to 7) to three boolean values
+    public boolean[] intToThreeBooleans(int value) {
+
+        boolean a = (value & 4) != 0;
+        boolean b = (value & 2) != 0;
+        boolean c = (value & 1) != 0;
+
+        return new boolean[] { a, b, c };
+    }
 }

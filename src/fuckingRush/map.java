@@ -275,7 +275,7 @@ public class map {
     }
 
     // TODO: Can optimize this number based off of size of map, make sure it is 2^n for shifting
-    public final int locationConversionInt = 1024;
+    public final int locationConversionInt = 64;
 
     public int locationToInt(Location loc) {
         return loc.x * locationConversionInt + loc.y;
@@ -285,6 +285,21 @@ public class map {
         int x = loc / locationConversionInt;
         int y = loc % locationConversionInt;
         return new Location(x, y);
+    }
+
+    public int twoLocationsToInt(Location locA, Location locB) {
+        int left = locationToInt(locA);
+        int right = locationToInt(locB);
+        return left * locationConversionInt*locationConversionInt + right;
+    }
+
+    public Location[] intToTwoLocations(int value) {
+        // Dont judge me
+        int right = value % (locationConversionInt*locationConversionInt);
+        value = value / locationConversionInt / locationConversionInt;
+        int left = value % (locationConversionInt*locationConversionInt);
+
+        return new Location [] {intToLocation(left), intToLocation(right)};
     }
 
     // Try to eliminate symmetry

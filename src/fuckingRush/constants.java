@@ -51,6 +51,7 @@ public class constants {
 
     // This is ally HQs
     public Location[] ourHQs;
+    public Location[] enemyHQs;
 
     // This is the spawn location
     public Location spawnLoc;

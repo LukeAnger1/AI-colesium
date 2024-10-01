@@ -271,4 +271,40 @@ public class navigation {
         map.addTravel(end.x, end.y);
 
     }
+
+    // Use this function as the start to see if we know enemy hq locations and then save them for later usage
+    public boolean doWeKnowEnemyHQAndSet() {
+        boolean holder = (constants.canBeVerticl && !constants.canBeRotational && !constants.canBeHorizontal) || (!constants.canBeVerticl && constants.canBeRotational && !constants.canBeHorizontal) || (!constants.canBeVerticl && !constants.canBeRotational && constants.canBeHorizontal);
+
+        // If there is only one symmetry we can find the enemy HQ locations
+        if (holder) {
+            // Go ahead and set enemy HQ locs
+            constants.enemyHQs = new Location[constants.ourHQs.length];
+
+            // Going to cycle through
+            // NOTE: There is a better way to do this but I only know it in python
+            if (constants.canBeHorizontal) {
+                for (int index = 0; index < constants.enemyHQs.length; index ++) {
+                    constants.enemyHQs[index] = map.horizontalSymmerty(constants.ourHQs[index]);
+                }
+                return true;
+            }
+
+            if (constants.canBeVerticl) {
+                for (int index = 0; index < constants.enemyHQs.length; index ++) {
+                    constants.enemyHQs[index] = map.verticalSymmerty(constants.ourHQs[index]);
+                }
+                return true;
+            }
+
+            if (constants.canBeRotational) {
+                for (int index = 0; index < constants.enemyHQs.length; index ++) {
+                    constants.enemyHQs[index] = map.rotationalSymmerty(constants.ourHQs[index]);
+                }
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

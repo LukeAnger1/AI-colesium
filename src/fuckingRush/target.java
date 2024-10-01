@@ -8,6 +8,7 @@ import fuckingRush.*;
 public class target {
     public constants constants;
     public map map;
+    public Location permTarget;
 
     // Set up target with the needed packages
     public target(map map, constants constants) {

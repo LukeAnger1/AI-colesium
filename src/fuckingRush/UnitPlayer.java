@@ -135,6 +135,15 @@ public class UnitPlayer {
                     uc.println("the comms information is hor " + constants.canBeHorizontal + " rot " + constants.canBeRotational + " vet " + constants.canBeVerticl);
                 }
 
+                // This will check if we know enemy HQ locations and set them if we know them
+                // NOTE: Because of turn order we should be able to broadcast this information then retreive it in the same turn using the other bots
+                if (uc.getRound() == 5 && navigation.doWeKnowEnemyHQAndSet()) {
+                    for (Location allyLoc: map.myAstronautLocs) {
+                        // IMPORTANT NOTE: Change this to better destination after testing
+                        comms.commBroadcast(map.twoLocationsToInt(allyLoc, new Location (0, 0)));
+                    }
+                }
+
                 for (Direction dir : constants.directions) {
                     // Settlement
                     uc.println("trying to make an settlement");
@@ -189,9 +198,31 @@ public class UnitPlayer {
                 // Get the targets to go after
                 Location end = null;
 
+                // There should be instructions posted in the comms, will retreive them every turn
+                // IMPORTANT NOTE: Eventually change this to allow bots to communicate with HQ
+                Buffer possLocWithTarget = comms.getAllComms();
+                for (int index = 0; index < possLocWithTarget.size(); index ++) {
+                    Location[] holder = map.intToTwoLocations(possLocWithTarget.get(index));
+                    Location ourLoc = holder[0];
+                    Location possPermTarget = holder[1];
+                    uc.println("I am getting ourLoc as " + ourLoc + " I am going to " + target);
+
+                    // Check if ourLoc matches to then set target if it does as this is a command for us to move
+                    if (ourLoc.equals(uc.getLocation())) {
+                        target.permTarget = possPermTarget;
+                        end = possPermTarget;
+                    }
+                }
+
                 // Go try to sabatoge
+                // IMPORTANT NOTE: Because sabotage takes priority they will try to do this over going to their target
                 if (end == null) {
                     end = target.getClosestEnemyStructure(uc);
+                }
+
+                // Use perm target if we have one
+                if (end == null) {
+                    end = target.permTarget;
                 }
 
                 // only target care packages if u dont have one otherwiase there is a waste as picking one up kills u

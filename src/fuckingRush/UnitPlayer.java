@@ -18,6 +18,7 @@ public class UnitPlayer {
     public void run(UnitController uc) {
         // Code to be executed only at the beginning of the unit's lifespan
 
+        // TODO: Hard code the first few turns outside of the while loop to make more bytecode optimized
         // First turn code to be ran on the first turn
         uc.println("Bro this is the first turn, chill the fuck out");
 
@@ -81,8 +82,27 @@ public class UnitPlayer {
             if (constants.isStructure && uc.getType() == StructureType.HQ) {
                 uc.println("I am HQ going to do HQ stuff");
 
+                // Turn 2 as HQ we are going to get all broadcasted ally HQ locations
                 if (uc.getRound() == 2) {
-                    uc.println("The comms information is " + comms.getAllComms());
+                    // Get all ally HQ locations in the buffer
+                    Buffer allyLocationsInInts = comms.getAllComms();
+                    uc.println("The comms information is " + allyLocationsInInts);
+
+                    // our HQs are the number of ally HQs plus 1
+                    constants.ourHQs = new Location[allyLocationsInInts.size() + 1];
+
+                    // cycle through our allies and copy them over
+                    for (int index = 0; index < allyLocationsInInts.size(); index ++) {
+                        constants.ourHQs[index] = map.intToLocation(allyLocationsInInts.get(index));
+                    }
+
+                    // Add in our location
+                    constants.ourHQs[allyLocationsInInts.size()] = uc.getLocation();
+
+                    // Print this out for debuging
+                    for (Location loc: constants.ourHQs) {
+                        uc.println("I think there is an HQ at " + loc);
+                    }
                 }
 
                 for (Direction dir : constants.directions) {
@@ -145,10 +165,11 @@ public class UnitPlayer {
                 }
 
                 // only target care packages if u dont have one otherwiase there is a waste as picking one up kills u
-                if (myCarePackage == null && end == null) {
-                    // See if there are any packages near here
-                    end = target.getClosestBestPackage(uc);
-                }
+                // NOTE: Going to bum rush so not caring about packages
+//                if (myCarePackage == null && end == null) {
+//                    // See if there are any packages near here
+//                    end = target.getClosestBestPackage(uc);
+//                }
 
                 // Pick the center of the map for shits and giggles, I dont really like this
                 // NOTE: targeting a location is significantly better
@@ -158,11 +179,12 @@ public class UnitPlayer {
 
                 // Do the navigation stuff
                 // IMPORATANT TODO: Finish the objects that get in the way to be better
-                navigation.navigateTo(uc, null, end, map.obstacles);
+                navigation.navigateTo(uc, null, end, map.bots);
 
                 uc.println("checking amount left 1.2 " + uc.getPercentageOfEnergyLeft());
 
                 // Try to sabotage anything we are near
+                // TODO: We shouldnt check this every turn like this
                 for (Direction dir : constants.directions) {
                     Location adjLocation = uc.getLocation().add(dir);
                     if (!uc.canSenseLocation(adjLocation)) continue;
@@ -183,6 +205,7 @@ public class UnitPlayer {
                 // Dont pick up care packages if u have a care package
                 if (myCarePackage == null) {
                     //Check if there arsenseStructure(Location loc)e Care Packages at an adjacent tile. If so, retrieve them.
+                    // TODO: We shouldnt check this every turn like this
                     for (Direction dir : constants.directions) {
                         Location adjLocation = uc.getLocation().add(dir);
                         if (!uc.canSenseLocation(adjLocation)) continue;

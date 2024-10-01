@@ -42,31 +42,34 @@ public class navigation {
 
         Direction dir;
 
-        // If there is a goal location go in that directio
-        dir = greedyBFS(uc, start, end, objects);
+        // If there is a goal location go in that direction
+        dir = greedyBFS(uc, start, end);
         if (dir != null){
             uc.performAction(ActionType.MOVE, dir, 0);
             return;
         }
 
-        // If there is a goal location go in that directio
-        dir = basicDumbAssGoingInLine(uc, start, end, objects);
-        if (dir != null){
-            uc.performAction(ActionType.MOVE, dir, 0);
-            return;
-        }
+        // If there is a goal location go in that direction
+        // NOTE: Make sure this is never ran as greedyBFS should always run and domintate
+//        dir = basicDumbAssGoingInLine(uc, start, end, objects);
+//        if (dir != null){
+//            uc.performAction(ActionType.MOVE, dir, 0);
+//            return;
+//        }
 
 
         // Move to explore
-        dir = explorationDirection(uc, start, null);
+        dir = explorationDirection(uc);
         if (dir != null) {
+            uc.println("I am explroing");
             uc.performAction(ActionType.MOVE, dir, 0);
             return;
         }
 
         // Move in a random direction
-        dir = randromDirection(uc, start, objects);
+        dir = randromDirection(uc);
         if (dir != null) {
+            uc.println("I am moving in a random direction");
             uc.performAction(ActionType.MOVE, dir, 0);
             return;
         }
@@ -74,8 +77,7 @@ public class navigation {
     }
 
     ////////// NOTE: Make sure these functions also make sure the uc can move in that direction before returning //////////
-    // TODO: Should change the code to use the objects array before checking action type
-    public Direction basicDumbAssGoingInLine(UnitController uc, Location start, Location end, Location[] objects) {
+    public Direction basicDumbAssGoingInLine(UnitController uc, Location start, Location end) {
 
         // check if the end location is even possible
         if (end == null) {
@@ -85,7 +87,6 @@ public class navigation {
         Direction dir = start.directionTo(end);
 
         // Check if we can move in the desired direction before returning
-        // TODO: Remove the objects in the parameter
         if (uc.canPerformAction(ActionType.MOVE, dir, 0)) {
             return start.directionTo(end);
         }
@@ -93,7 +94,7 @@ public class navigation {
         return null;
     }
 
-    public Direction randromDirection(UnitController uc, Location start, Location[] objects) {
+    public Direction randromDirection(UnitController uc) {
         //move randomly, turning right if we can't move.
         Direction randomDir = getRandomDirection(uc);
         for (int i = 0; i < 8; ++i){
@@ -106,7 +107,7 @@ public class navigation {
         return null;
     }
 
-    public Direction explorationDirection(UnitController uc, Location start, Location[] objects) {
+    public Direction explorationDirection(UnitController uc) {
 
         // if the exploration direction is null then set it
         if (explorationDir == null) {
@@ -137,9 +138,9 @@ public class navigation {
     }
 
     // IMPORTANT NOTE: Because we are always reseting the line there is a scenario where we are looped back onto itself
-    public Direction greedyBFS(UnitController uc, Location start, Location end, Location[] objects) {
+    public Direction greedyBFS(UnitController uc, Location start, Location end) {
         // NOTE: Can optimize by only doing the first obstacle and only if there is an obstacl in the way
-        // IMPORTANT TODO: Change the code to instead choose the square with the least steps to get to end
+        // IMPORTANT TODO: Change the code to instead choose the square with the least steps to get to end!!!!, Also only needs to get around the first object!!! OPTIMZE OPTIMIZE
         if (end == null) {
             return null;
         }

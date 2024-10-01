@@ -4,6 +4,16 @@ import aic2024.user.*;
 
 public class helper {
 
+    // This function checks if the first object is in the second array
+    public boolean isIn (Object obj, Object[] arr) {
+        for (Object obj2: arr) {
+            if (obj.equals(obj2)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // Function to combine an array of arrays into a single array
     public Location[] combineArrays(Location[] array1, Location[] array2) {
         // Calculate total length

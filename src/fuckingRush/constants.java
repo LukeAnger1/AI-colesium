@@ -24,11 +24,16 @@ public class constants {
     public final byte my_permanent_structure = 1;
     public final byte oppoennt_permanent_structure = 2;
     public final byte domes = 3;
-//    public final byte hyper_jump = 4;
+//    public final byte terraform = ;
     public final byte noTravel = 4;
     public final byte travel = 5;
     public final byte hot_zones = 6;
     public final byte water = 7;
+
+    // Keep track of what symmetries can be
+    public boolean canBeRotational = true;
+    public boolean canBeHorizontal = true;
+    public boolean canBeVerticl = true;
 
     // This is how much oxygen to make an astraunaut with
     public final int oxygenNoPackage = 30;
@@ -43,6 +48,9 @@ public class constants {
     public final int REINFORCED_SUIT_VALUE = 6;
     public final int SETTLEMENT_VALUE = -1;
     public final int SURVIVAL_KIT_VALUE = 2;
+
+    // This is ally HQs
+    public Location[] ourHQs;
 
     // This is the spawn location
     public Location spawnLoc;

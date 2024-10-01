@@ -4,10 +4,13 @@ import aic2024.engine.Unit;
 import aic2024.user.*;
 import fuckingRush.*;
 
-import java.nio.BufferUnderflowException;
-import java.nio.file.DirectoryIteratorException;
-
-// TODO: Can change this back to jbect to be more universal but nah
+// IMPORTANT NOTE: The communicaation works quite poorly in this game
+// Bots can post messages which can be read in the same turn by other bots whoose turn is after
+// Bots can also poll messages, but this will remove that message from the broadcast, ONLY after every bots has taken their turn for that teams turn
+// Also bots cannot read their own messages
+// This class artifically slows down communication by suggesting to use send and receive every other turn. This gaurantees bots all see the same message (minus the fact they cant read their own messages)
+// TODO: We can actually communicate with bots that dont have radios by using polls to send numbers to HQ by removing integers to communicate information
+// NOTE: To do this we have to make sure bots dont send messages at the same time
 
 public class comms {
 
@@ -23,6 +26,12 @@ public class comms {
 
     // Cycle through all the broadcasts and save them
     public Buffer getAllComms() {
+        // IMPORTANT NOTE: Will not keep track of self made messages
+
+        // Try to do only every even turn
+        if (uc.getRound() % 2 != 0) {
+            uc.println("Try to call this function every even turn!!!");
+        }
 
         uc.println("comms 1 with " + uc.getPercentageOfEnergyLeft());
 
@@ -47,15 +56,6 @@ public class comms {
             broadcastInfo = uc.pollBroadcast();
         }
 
-        // Return them back to the bufferspace
-        // NOTE: This may change the order of messages
-        // IMPORTANT TODO: Figure out some way to rewrite to polls after using, currently only good way to use is to broadcast then retreive everything the next turn, also cant get own messages!!!!
-//        uc.println("while the buffer size here is " + Buffer.size());
-//        for (int index = 0; index < Buffer.size(); index ++) {
-//            commBroadcast(Buffer.get(index));
-//            uc.println("comms 5 with " + uc.getPercentageOfEnergyLeft() + " with size " + Buffer.size());
-//        }
-
         uc.println("comms 6 with " + uc.getPercentageOfEnergyLeft());
 
         // return the answer
@@ -63,6 +63,10 @@ public class comms {
     }
 
     public void commBroadcast(int value) {
+        // Try to call this function only every odd turn
+        if (uc.getRound() == 0) {
+            uc.println("Try to call this function only on odd turns");
+        }
         uc.performAction(ActionType.BROADCAST, null, value);
     }
 }

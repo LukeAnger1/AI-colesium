@@ -32,7 +32,7 @@ public class map {
     public Location[] opponentStructureLocs;
     public CarePackageInfo[] CarePackageInfos;
     public Location[] CarePackageLocs;
-    public Location[] obstacles;
+    public Location[] bots;
 
 
 
@@ -94,7 +94,10 @@ public class map {
         // Get the map locations
         myStructureLocs = new Location[myStructures.length];
         for (int index = 0; index < myStructures.length; index ++) {
-            myStructureLocs[index] = myStructures[index].getLocation();
+            Location holder = myStructures[index].getLocation();
+            myStructureLocs[index] = holder;
+            // Include this in the grid map
+            grid_shit[holder.x][holder.y] = constants.my_permanent_structure;
         }
 
         // Get opponent structures
@@ -131,7 +134,7 @@ public class map {
         }
 
         // HYPER JUMP
-        // IMPORTANT TODO: Remove them when they are missing
+        // NOTE: Not enough room in gytes to record this
         hyperJump = uc.senseObjects(MapObject.HYPERJUMP, (float) constants.visionRadius);
 //        for (Location jump: hyperJump) {
 //            grid_shit[jump.x][jump.y] = constants.hyper_jump;
@@ -151,8 +154,8 @@ public class map {
             grid_shit[waterLoc.x][waterLoc.y] = constants.water;
         }
 
-        // IMPORTANT TODO: This is only a termporary check for obstacles
-        obstacles = helper.combineArrays(myAstronautLocs, oponnentAstronautLocs, domes, water, myStructureLocs, opponentStructureLocs);
+        // NOTE: This is for bots
+        bots = helper.combineArrays(myAstronautLocs, oponnentAstronautLocs);
 
         uc.println("checking amount left inside map 5 " + uc.getPercentageOfEnergyLeft());
 
@@ -197,12 +200,12 @@ public class map {
         // Going to check if can travel here, if so then we are done
         if (canTravel(x, y)) {
             grid_shit[x][y] = constants.travel;
-//            uc.drawPointDebug(new Location(x, y), 0, 255, 0);
+            uc.drawPointDebug(new Location(x, y), 0, 255, 0);
             return true;
         }
 
         // marking as cant travel
-//        uc.drawPointDebug(new Location(x, y), 255, 0, 0);
+        uc.drawPointDebug(new Location(x, y), 255, 0, 0);
         grid_shit[x][y] = constants.noTravel;
 
         // If not then I am going to recursively search the other squares
@@ -212,6 +215,7 @@ public class map {
         addTravel(x, y - 1); // Up
         addTravel(x, y + 1); // Down
 
+        // NOTE: WHen change this to actual BFS we may want to remove these diagonal checks, IDK yet
         // Diagonal moves
         addTravel(x - 1, y - 1); // Top-left
         addTravel(x + 1, y - 1); // Top-right
@@ -223,12 +227,14 @@ public class map {
 
     public boolean canTravel (int x, int y) {
         // Check if it is on the grid
-        if (x < 0 || y < 0 || x >= constants.width || y >= constants.height) {
+        Location loc = new Location(x, y);
+        if (uc.isOutOfMap(loc)) {
             return false;
         }
 
         byte holder = grid_shit[x][y];
-        return holder == constants.land || holder == constants.hot_zones || holder == constants.travel || holder == constants.domes;
+        // TODO: Make sure there is nothing we dont think we can travel through
+        return !helper.isIn(loc, bots) && (holder == constants.land || holder == constants.hot_zones || holder == constants.travel || holder == constants.domes);
     }
 
     ///// Find the symmerty information
@@ -253,13 +259,16 @@ public class map {
         return new int[]{newX, newY};
     }
 
+    // TODO: Can optimize this number based off of size of map, make sure it is 2^n for shifting
+    public final int locationConversionInt = 1024;
+
     public int locationToInt(Location loc) {
-        return loc.x * 1024 + loc.y;
+        return loc.x * locationConversionInt + loc.y;
     }
 
     public Location intToLocation (int loc) {
-        int x = loc / 1024;
-        int y = loc % 1024;
+        int x = loc / locationConversionInt;
+        int y = loc % locationConversionInt;
         return new Location(x, y);
     }
 }

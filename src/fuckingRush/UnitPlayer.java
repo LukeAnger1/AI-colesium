@@ -46,11 +46,9 @@ public class UnitPlayer {
             constants.isStructure = true;
 
             // Send the our initial positions
-            uc.println("the location is " + uc.getLocation());
-            uc.yield();
+            // NOTE: this will be used by the HQs to start then it will contain what the bots should do
             int holder = map.locationToInt(uc.getLocation());
             uc.println("trying to save value " + holder);
-            uc.yield();
             comms.commBroadcast(holder);
 
         } else {
@@ -83,7 +81,7 @@ public class UnitPlayer {
             if (constants.isStructure && uc.getType() == StructureType.HQ) {
                 uc.println("I am HQ going to do HQ stuff");
 
-//                uc.println("The comms information is " + comms.getAllComms());
+                uc.println("The comms information is " + comms.getAllComms());
 
                 // TODO: Remove this later it is a test to see if astraunauts can see the broadcast information
 //                uc.println("polling the broadcast information");

@@ -30,6 +30,9 @@ public class comms {
         if (roundNum != uc.getRound()) {
             Buffer.clear();
             roundNum = uc.getRound();
+            uc.println("clearing the buffer, the buffer has size " + Buffer.size());
+        } else {
+            uc.println("not clearing the buffer");
         }
 
         uc.println("comms 2 with " + uc.getPercentageOfEnergyLeft());
@@ -39,16 +42,19 @@ public class comms {
         // Go through every message that isnt null
         while (broadcastInfo != null) {
             int value = broadcastInfo.getMessage();
+            uc.println("the message value is " + value);
             Buffer.add(value);
             broadcastInfo = uc.pollBroadcast();
         }
 
         // Return them back to the bufferspace
         // NOTE: This may change the order of messages
-        for (int index = 0; index < Buffer.size(); index ++) {
-            commBroadcast(Buffer.get(index));
-            uc.println("comms 5 with " + uc.getPercentageOfEnergyLeft() + " with size " + Buffer.size());
-        }
+        // IMPORTANT TODO: Figure out some way to rewrite to polls after using, currently only good way to use is to broadcast then retreive everything the next turn, also cant get own messages!!!!
+//        uc.println("while the buffer size here is " + Buffer.size());
+//        for (int index = 0; index < Buffer.size(); index ++) {
+//            commBroadcast(Buffer.get(index));
+//            uc.println("comms 5 with " + uc.getPercentageOfEnergyLeft() + " with size " + Buffer.size());
+//        }
 
         uc.println("comms 6 with " + uc.getPercentageOfEnergyLeft());
 

@@ -11,7 +11,7 @@ public class Buffer<T> {
 
     @SuppressWarnings("unchecked")
     public Buffer(int capacity) {
-        this.buffer = (int[]) new int[capacity];
+        this.buffer = new int[capacity];
         this.final_size = capacity;
     }
 
@@ -19,8 +19,8 @@ public class Buffer<T> {
     public void add(int item) {
         if (changing_size < final_size) {
             buffer[changing_size] = item;
+            changing_size++;
         }
-        changing_size++;
     }
 
     public boolean isEmpty() {

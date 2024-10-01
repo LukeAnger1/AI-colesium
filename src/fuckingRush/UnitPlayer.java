@@ -81,7 +81,9 @@ public class UnitPlayer {
             if (constants.isStructure && uc.getType() == StructureType.HQ) {
                 uc.println("I am HQ going to do HQ stuff");
 
-                uc.println("The comms information is " + comms.getAllComms());
+                if (uc.getRound() == 2) {
+                    uc.println("The comms information is " + comms.getAllComms());
+                }
 
                 for (Direction dir : constants.directions) {
                     // Settlement

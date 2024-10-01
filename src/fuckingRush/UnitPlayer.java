@@ -30,7 +30,7 @@ public class UnitPlayer {
         constants.height = uc.getMapHeight();
 
         // sets up the comms, figure out a good size for the buffer
-        comms = new comms(uc, new CircularBuffer(1000));
+        comms = new comms(uc, new Buffer(1000));
 
         // Set up the map
         map = new map(helper, constants, constants.width, constants.height, uc);
@@ -82,28 +82,6 @@ public class UnitPlayer {
                 uc.println("I am HQ going to do HQ stuff");
 
                 uc.println("The comms information is " + comms.getAllComms());
-
-                // TODO: Remove this later it is a test to see if astraunauts can see the broadcast information
-//                uc.println("polling the broadcast information");
-////                uc.yield();
-//                BroadcastInfo holder = uc.pollBroadcast();
-//                uc.println("poll successful with value " + holder);
-////                uc.yield();
-//                if (holder != null) {
-//                    uc.println("getting the broadcast information");
-//                    uc.println("reading the broadcast information as " + holder.getLocation() + " with round " + holder.getRound());
-//                } else {
-//                    uc.println("not going to broadcast because it is null");
-//                }
-////                uc.yield();
-//                // Broadcast the location of the HQ
-//                uc.println("attempting to broadcast the location of the strucutre");
-//                if (uc.canPerformAction(ActionType.BROADCAST, null, 1) && uc.getRound() < 3) {
-////                    uc.yield();
-//                    uc.println("now that I think I can broadcast I am gong to broadcast");
-//                    uc.performAction(ActionType.BROADCAST, null, 1);
-////                    uc.yield();
-//                }
 
                 for (Direction dir : constants.directions) {
                     // Settlement

@@ -9,12 +9,12 @@ import java.nio.file.DirectoryIteratorException;
 public class navigation {
 
     public constants constants;
-    public CircularBuffer CircularBuffer;
+    public Buffer CircularBuffer;
     public map map;
 
     public navigation (constants constants, map map) {
         this.constants = constants;
-        this.CircularBuffer = new CircularBuffer(this.constants.circularBufferSize);
+        this.CircularBuffer = new Buffer(this.constants.circularBufferSize);
         this.map = map;
     }
 

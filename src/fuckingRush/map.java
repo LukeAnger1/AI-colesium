@@ -245,6 +245,11 @@ public class map {
         return new int[]{newX, newY};
     }
 
+    public Location rotationalSymmerty(Location loc) {
+        int [] holder = rotationalSymmetry(loc.x, loc.y);
+        return new Location(holder[0], holder[1]);
+    }
+
     // Function to calculate horizontal symmetry
     public int[] horizontalSymmetry(int x, int y) {
         int newX = width - x - 1;
@@ -252,11 +257,21 @@ public class map {
         return new int[]{newX, newY};
     }
 
+    public Location horizontalSymmerty(Location loc) {
+        int [] holder = horizontalSymmetry(loc.x, loc.y);
+        return new Location(holder[0], holder[1]);
+    }
+
     // Function to calculate vertical symmetry
     public int[] verticalSymmetry(int x, int y) {
         int newX = x;
         int newY = height - y - 1;
         return new int[]{newX, newY};
+    }
+
+    public Location verticalSymmerty(Location loc) {
+        int [] holder = verticalSymmetry(loc.x, loc.y);
+        return new Location(holder[0], holder[1]);
     }
 
     // TODO: Can optimize this number based off of size of map, make sure it is 2^n for shifting
@@ -271,4 +286,71 @@ public class map {
         int y = loc % locationConversionInt;
         return new Location(x, y);
     }
+
+    // Try to eliminate symmetry
+    public boolean canStillBeRotational() {
+        // loop through all of our HQs
+        for (Location ourHQLoc: constants.ourHQs) {
+
+            // Rotate the HQ to be where the enemy should be
+            Location possibleEnemyLoc = rotationalSymmerty(ourHQLoc);
+
+            // Check if it should be visible
+            uc.println("the distance squared is " + ourHQLoc.distanceSquared(possibleEnemyLoc) + " and the vision radius is " + constants.visionRadius + " while ourHQ is at " + ourHQLoc);
+            if (uc.getLocation().distanceSquared(possibleEnemyLoc) <= constants.visionRadius) {
+                // If it should be viisble and isnt return false
+                uc.println("The possibleEnemyLoc is " + possibleEnemyLoc);
+                if (!helper.isIn(possibleEnemyLoc, opponentStructureLocs)) {
+                    return false;
+                }
+            }
+
+        }
+
+        // return true
+        return true;
+    }
+
+    // Try to eliminate horizontal symmetry
+    public boolean canStillBeHorizontal() {
+        // loop through all of our HQs
+        for (Location ourHQLoc : constants.ourHQs) {
+
+            // Reflect the HQ across the horizontal axis
+            Location possibleEnemyLoc = horizontalSymmerty(ourHQLoc);
+
+            // Check if it should be visible
+            if (ourHQLoc.distanceSquared(possibleEnemyLoc) <= constants.visionRadius) {
+                // If it should be visible and isn't, return false
+                if (!helper.isIn(possibleEnemyLoc, opponentStructureLocs)) {
+                    return false;
+                }
+            }
+        }
+
+        // return true
+        return true;
+    }
+
+    // Try to eliminate vertical symmetry
+    public boolean canStillBeVertical() {
+        // loop through all of our HQs
+        for (Location ourHQLoc : constants.ourHQs) {
+
+            // Reflect the HQ across the vertical axis
+            Location possibleEnemyLoc = verticalSymmerty(ourHQLoc);
+
+            // Check if it should be visible
+            if (ourHQLoc.distanceSquared(possibleEnemyLoc) <= constants.visionRadius) {
+                // If it should be visible and isn't, return false
+                if (!helper.isIn(possibleEnemyLoc, opponentStructureLocs)) {
+                    return false;
+                }
+            }
+        }
+
+        // return true
+        return true;
+    }
+
 }

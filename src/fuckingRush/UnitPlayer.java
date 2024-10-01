@@ -82,6 +82,8 @@ public class UnitPlayer {
             if (constants.isStructure && uc.getType() == StructureType.HQ) {
                 uc.println("I am HQ going to do HQ stuff");
 
+                map.record(uc);
+
                 // Turn 2 as HQ we are going to get all broadcasted ally HQ locations
                 if (uc.getRound() == 2) {
                     // Get all ally HQ locations in the buffer
@@ -100,9 +102,12 @@ public class UnitPlayer {
                     constants.ourHQs[allyLocationsInInts.size()] = uc.getLocation();
 
                     // Print this out for debuging
-                    for (Location loc: constants.ourHQs) {
-                        uc.println("I think there is an HQ at " + loc);
-                    }
+//                    for (Location loc: constants.ourHQs) {
+//                        uc.println("I think there is an HQ at " + loc);
+//                    }
+
+                    // The possible symmetries with this information
+                    uc.println("th epossible symmetries are roational symmetry " + map.canStillBeRotational() + " vertical symmetry " + map.canStillBeVertical() + " can still be horizontal " + map.canStillBeHorizontal());
                 }
 
                 for (Direction dir : constants.directions) {

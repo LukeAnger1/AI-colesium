@@ -52,6 +52,11 @@ public class navigation {
         }
 
         // TODO: Add logic that gives good gues at direction if too many astruanauts for bug
+        dir = sixthWestPathFinding(start, end);
+        if (dir != null) {
+            uc.println("doing the sixth west shit");
+            uc.performAction(ActionType.MOVE, dir, 0);
+        }
 
 //        dir = broWTF(uc, start, tempEnd);
 //        uc.println("bro wtf returned " + dir);
@@ -388,6 +393,27 @@ public class navigation {
 
     // This functino is on some frickin steroids
     public Direction sixthWestPathFinding (Location start, Location end) {
+        Direction best = start.directionTo(end);
+
+        // lets try gonig that way then the sides
+        if (uc.canPerformAction(ActionType.MOVE, best, 0)) {
+            return best;
+        }
+
+        best = best.rotateRight();
+
+        // lets try gonig that way then the sides
+        if (uc.canPerformAction(ActionType.MOVE, best, 0)) {
+            return best;
+        }
+
+        best = best.rotateLeft().rotateLeft();
+
+        // lets try gonig that way then the sides
+        if (uc.canPerformAction(ActionType.MOVE, best, 0)) {
+            return best;
+        }
+
         return null;
     }
 

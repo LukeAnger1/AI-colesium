@@ -237,6 +237,10 @@ public class map {
         return !helper.isIn(loc, bots) && (holder == constants.land || holder == constants.hot_zones || holder == constants.travel || holder == constants.domes);
     }
 
+    public boolean canTravel (Location loc) {
+        return canTravel(loc.x, loc.y);
+    }
+
     ///// Find the symmerty information
     // Function to calculate rotational symmetry
     public int[] rotationalSymmetry(int x, int y) {

@@ -5,12 +5,14 @@ import aic2024.user.*;
 import fuckRush2.*;
 
 import java.nio.file.DirectoryIteratorException;
+import java.util.Arrays;
 
 public class navigation {
 
     public constants constants;
     public Buffer CircularBuffer;
     public map map;
+    public helper helper;
 
     public UnitController uc;
 
@@ -44,6 +46,20 @@ public class navigation {
 
         Direction dir;
 
+        dir = bug(start, end);
+        if (dir != null) {
+            uc.performAction(ActionType.MOVE, dir, 0);
+        }
+
+        // TODO: Add logic that gives good gues at direction if too many astruanauts for bug
+
+//        dir = broWTF(uc, start, tempEnd);
+//        uc.println("bro wtf returned " + dir);
+//        if (dir != null) {
+//            uc.println("doing bro wtf");
+//            uc.performAction(ActionType.MOVE, dir, 0);
+//        }
+
         // If there is a goal location go in that direction
 //        dir = greedyBFS(uc, start, end);
 //        if (dir != null){
@@ -53,7 +69,9 @@ public class navigation {
 
         // If there is a goal location go in that direction
         // NOTE: Make sure this is never ran as greedyBFS should always run and domintate
+        // IMPORTANT TODO: End code once moved
         dir = basicDumbAssGoingInLine(uc, start, end);
+        uc.println("going to try to move in " + dir + " using basic dumb ass");
         if (dir != null){
             uc.performAction(ActionType.MOVE, dir, 0);
             return;
@@ -206,6 +224,173 @@ public class navigation {
 
         return null;
     }
+
+    // This function is optimal bfs to find optimal moves for optimization
+    // IMPORTANT NOTE: This wont work because will repeatedly explore the same combinations
+    public Direction broWTF (UnitController uc, Location start, Location end) {
+        // This is the base case
+//        if (start.equals(end)) {
+//            return null;
+//        }
+
+        uc.println("the start location is " + start + " the end location is " + end);
+
+        // Make sure to skip any null Locations
+        Location[] possibleLocFromEnd = new Location[9];
+
+        for (int index = 0; index < 9; index ++) {
+            possibleLocFromEnd[index] = end.add(constants.directions[index]);
+        }
+
+        // Sort this array with the lower distance in the 0 index
+        // To find the distance run start.distanceSquaredTo(possibleLocFromEnd)
+        // Filter out null locations and sort by distance squared to the start
+        Arrays.sort(possibleLocFromEnd, (loc1, loc2) -> {
+            if (loc1 == null && loc2 == null) return 0;
+            if (loc1 == null) return 1; // nulls go to the end
+            if (loc2 == null) return -1; // nulls go to the end
+            return Integer.compare(start.distanceSquared(loc1), start.distanceSquared(loc2));
+        });
+
+        for (Location loc: possibleLocFromEnd) {
+
+            // This is the case it hits the nulls and should break
+            if (loc == null) {
+                break;
+            }
+
+            // This checks if the next dir will return the start state and return if so, aka the base case
+            if (loc.equals(start)) {
+                return start.directionTo(loc);
+            }
+
+            // Check if we can travel to the new spot
+            if (map.canTravel(loc)) {
+                // If we can then we are going to recursively call this
+                Direction dir = broWTF(uc, start, loc);
+                if (dir.equals(Direction.ZERO)) {
+                    uc.println("The dir is ZE bro");
+                }
+
+                // We are going to check if it eventually hit the base case
+                // NOTE: This should be a redudant check to see if can move but we will see
+                uc.println("going to try to move in " + dir);
+                if (dir != null && uc.canPerformAction(ActionType.MOVE, dir, 0)) {
+                    uc.println("returning the dir");
+                    return dir;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    // This is basic bug navigation to get from point A to point B
+    public Direction rightHandRuleDir;
+    public double m;
+    public double b;
+    public int distToGoalOnceHitObject;
+    public boolean onObj = false;
+    public final int howLongStayOnObj = 4;
+    public int howLongStayOnObjCount = 0;
+
+    public boolean onLine(double slope, double intercept, Location loc) {
+        // Check if close enough to the line and return true if so
+        return loc.distanceSquared(new Location(loc.x, (int)(slope*loc.x + intercept))) <= 2;
+    }
+
+    public double getSlope (Location one, Location two) {
+        // return big ass num if vertical so I dont have to deal with this shit
+        if (one.x == two.x) return 100000;
+
+        return (double)(two.y - one.y) / (two.x - one.x);
+    }
+
+    public double getIntercept (Location one, Location two, double slope) {
+        // since y = mx + b
+        return one.y - slope * one.x;
+    }
+
+    public Direction bug (Location start, Location end) {
+
+        // Set the start to our loc if it is null
+        if (start.equals(null)) {
+            start = uc.getLocation();
+        }
+
+        // If there are astraunauts around us then dont use bug nav
+        for (Direction dir: constants.directions) {
+            Location holder = start.add(dir);
+            if (helper.isIn(holder, map.oponnentAstronautLocs) || helper.isIn(holder, map.myAstronautLocs)) {
+                uc.println("not using bug nav and saying I am not on obj");
+                onObj = false;
+                return null;
+            }
+        }
+
+        uc.println("calling bug nav with start " + start + " end " + end + " and I am on an obj " + onObj);
+
+        // This handles the logic to see if we should exit bug nav mode, we should be on the line and closer to the destination
+        if (onObj && howLongStayOnObjCount < howLongStayOnObj && onLine(m, b, start) && end.distanceSquared(start) < distToGoalOnceHitObject) {
+            uc.println("in 1 bug");
+            howLongStayOnObjCount++;
+            onObj = false;
+            return bug(start, end);
+        }
+
+        // If not on an object try to move forard, if can move forward then do
+        Direction dirToGoal = start.directionTo(end);
+        if (!onObj && uc.canPerformAction(ActionType.MOVE, dirToGoal, 0)) {
+            uc.println("in 2 bug");
+            return dirToGoal;
+        }
+
+        // I got to be on obj then, so if not currently recording set the objectives
+        if (!onObj) {
+            uc.println("in 3 bug");
+            howLongStayOnObjCount = 0;
+            onObj = true;
+            distToGoalOnceHitObject = start.distanceSquared(end);
+            m = getSlope(start, end);
+            b = getIntercept(start, end, m);
+            // I dont want to move diagonal so we are going to only use NORTH WEST SOUTH EAST
+            rightHandRuleDir = start.directionTo(end);
+            // rotate until I get N E S W
+            uc.println("the right hand dir is " + rightHandRuleDir);
+            if (rightHandRuleDir != Direction.NORTH || rightHandRuleDir != Direction.EAST || rightHandRuleDir != Direction.SOUTH || rightHandRuleDir != Direction.WEST) {
+                uc.println("in the loop with dir " + rightHandRuleDir);
+                rightHandRuleDir = rightHandRuleDir.rotateLeft();
+            }
+            // rotate 90 for the direciton we should go in
+            rightHandRuleDir = rightHandRuleDir.rotateLeft().rotateLeft();
+            return bug(start, end);
+        }
+
+        // Try to go right 90 then forward then left 90, I only want to use NORTH EAST SOUTH WEST
+        rightHandRuleDir = rightHandRuleDir.rotateRight().rotateRight();
+        if (uc.canPerformAction(ActionType.MOVE, rightHandRuleDir, 0)) {
+            uc.println("in 4 bug");
+            return rightHandRuleDir;
+        }
+
+        for (int index = 0; index < 7; index ++) {
+            rightHandRuleDir = rightHandRuleDir.rotateLeft();
+            if (uc.canPerformAction(ActionType.MOVE, rightHandRuleDir, 0)) {
+                uc.println("in 5 bug");
+                return rightHandRuleDir;
+            }
+        }
+
+        uc.println("in 6 bug");
+        // bro we cant move
+        return null;
+    }
+
+    // This functino is on some frickin steroids
+    public Direction sixthWestPathFinding (Location start, Location end) {
+        return null;
+    }
+
     ////////// NOTE: Make sure these functions also make sure the uc can move in that direction before returning //////////
 
     public Boolean isMovementCooldownReady(UnitController uc) {

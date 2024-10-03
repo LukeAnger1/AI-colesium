@@ -74,7 +74,9 @@ public class UnitPlayer {
 
         // set up the navigation
         navigation = new navigation(constants, map);
+        // Add the below into a constructor
         navigation.uc = uc;
+        navigation.helper = helper;
 
 
         uc.println("finished up first turn shit going into regular shit");
@@ -244,9 +246,10 @@ public class UnitPlayer {
                     // Check if ourLoc matches to then set target if it does as this is a command for us to move
                     uc.println("th epossible parent location is " + ourLoc + " the target location is " + possPermTarget);
                     if (ourLoc.equals(uc.getParent().getLocation())) {
-//                        uc.println("my parent location is " + uc.getParent().getLocation());
                         target.permTarget = possPermTarget;
                         end = possPermTarget;
+                        uc.println("setting as target " + target.permTarget);
+                        break;
                     }
                 }
 

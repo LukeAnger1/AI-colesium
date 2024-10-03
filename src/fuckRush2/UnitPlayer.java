@@ -42,7 +42,7 @@ public class UnitPlayer {
         map = new map(helper, constants, constants.width, constants.height, uc);
 
         // Set up the health
-        health = new Health(map);
+        health = new Health(map, constants);
 
         // Set up the spawn licatinos
         spawnTargets = new spawnTargets(uc, health, constants);
@@ -175,7 +175,7 @@ public class UnitPlayer {
 
                 // Need to do this better
                 // IMPORTANT TODO: got to makwe sure that doWeKnowAndSet alwasy sets
-                if (uc.getRound() > 5) {
+                if (uc.getRound() > 5 && uc.getRound() % 2 == 1) {
                     uc.println("in round " + uc.getRound());
                     // Going to see if we can set
                     navigation.doWeKnowEnemyHQAndSet();
@@ -214,23 +214,25 @@ public class UnitPlayer {
                 // Get the targets to go after
                 Location end = null;
 
-                // There should be instructions posted in the comms, will retreive them every turn
-                // IMPORTANT NOTE: Eventually change this to allow bots to communicate with HQ
-                Buffer possLocWithTarget = comms.getAllComms();
-//                uc.println("the possible loc with target are " + possLocWithTarget);
-                for (int index = 0; index < possLocWithTarget.size(); index ++) {
-                    Location[] holder = map.intToTwoLocations(possLocWithTarget.get(index));
-                    Location ourLoc = holder[0];
-                    Location possPermTarget = holder[1];
-//                    uc.println("I am getting parent location as " + ourLoc + " I am going to " + target);
+                if (uc.getRound() % 2 == 0) {
+                    // There should be instructions posted in the comms, will retreive them every turn
+                    // IMPORTANT NOTE: Eventually change this to allow bots to communicate with HQ
+                    Buffer possLocWithTarget = comms.getAllComms();
+                    //                uc.println("the possible loc with target are " + possLocWithTarget);
+                    for (int index = 0; index < possLocWithTarget.size(); index++) {
+                        Location[] holder = map.intToTwoLocations(possLocWithTarget.get(index));
+                        Location ourLoc = holder[0];
+                        Location possPermTarget = holder[1];
+                        //                    uc.println("I am getting parent location as " + ourLoc + " I am going to " + target);
 
-                    // Check if ourLoc matches to then set target if it does as this is a command for us to move
-                    uc.println("th epossible parent location is " + ourLoc + " the target location is " + possPermTarget);
-                    if (ourLoc.equals(uc.getParent().getLocation())) {
-                        target.permTarget = possPermTarget;
-                        end = possPermTarget;
-                        uc.println("setting as target " + target.permTarget);
-                        break;
+                        // Check if ourLoc matches to then set target if it does as this is a command for us to move
+                        uc.println("th epossible parent location is " + ourLoc + " the target location is " + possPermTarget);
+                        if (ourLoc.equals(uc.getParent().getLocation())) {
+                            target.permTarget = possPermTarget;
+                            end = possPermTarget;
+                            uc.println("setting as target " + target.permTarget);
+                            break;
+                        }
                     }
                 }
 
@@ -267,6 +269,7 @@ public class UnitPlayer {
 
                 // Try to sabotage anything we are near
                 // TODO: We shouldnt check this every turn like this
+                // TODO: Dont sabotage astraunauts only main structures
                 for (Direction dir : constants.directions) {
                     Location adjLocation = uc.getLocation().add(dir);
                     if (!uc.canSenseLocation(adjLocation)) continue;
@@ -283,6 +286,7 @@ public class UnitPlayer {
                 }
 
                 // Dont pick up care packages if u have a care package
+                // TODO: Like lets just quit picking up these care packages
                 if (myCarePackage == null) {
                     //Check if there arsenseStructure(Location loc)e Care Packages at an adjacent tile. If so, retrieve them.
                     // TODO: We shouldnt check this every turn like this

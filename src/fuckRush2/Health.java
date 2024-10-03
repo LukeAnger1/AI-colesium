@@ -10,12 +10,15 @@ import fuckRush2.*;
 public class Health {
     // Astraunats lose 1 oxygen every turn not under construction
     public final double HealthPerDistance = 1.5;
-    public final int startingHealth = 20;
+    public final int startingHealth;
 
     public map map;
+    public constants constants;
 
-    public Health (map map) {
+    public Health (map map, constants constants) {
         this.map = map;
+        this.constants = constants;
+        startingHealth = (int)((double)constants.width * constants.height / 30 / 30 * 25);
     }
 
     public int getHealthSuggested(Location start, Location end) {

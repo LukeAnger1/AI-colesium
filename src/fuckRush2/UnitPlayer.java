@@ -15,6 +15,8 @@ public class UnitPlayer {
     public target target;
     public CarePackage myCarePackage;
     public comms comms;
+    public spawnTargets spawnTargets;
+    public Health health;
 
     public void run(UnitController uc) {
         uc.println("my ID is " + uc.getID());
@@ -38,6 +40,12 @@ public class UnitPlayer {
 
         // Set up the map
         map = new map(helper, constants, constants.width, constants.height, uc);
+
+        // Set up the health
+        health = new Health(map);
+
+        // Set up the spawn licatinos
+        spawnTargets = new spawnTargets(uc, health, constants);
 
         // Sets the structure type
         if (uc.isStructure()) {
@@ -179,46 +187,19 @@ public class UnitPlayer {
                     comms.commBroadcast(map.twoLocationsToInt(constants.ourLoc, constants.enemyHQs[constants.ourHQIndex]));
                 }
 
-                for (Direction dir : constants.directions) {
-                    // Settlement
-//                    uc.println("trying to make an settlement");
-                    if (uc.canEnlistAstronaut(dir, constants.oxygenWithPackage, CarePackage.SETTLEMENT)) {
-//                        uc.println("I think I can build");
-                        uc.enlistAstronaut(dir, constants.oxygenWithPackage, CarePackage.SETTLEMENT);
-//                        uc.println("after trying to build");
-                        break;
-                    }
-                    // Dome
-                    if (uc.canEnlistAstronaut(dir, constants.oxygenWithPackage, CarePackage.DOME)) {
-                        uc.enlistAstronaut(dir, constants.oxygenWithPackage, CarePackage.DOME);
-                        break;
-                    }
-                    // Reinforced suit
-                    if (uc.canEnlistAstronaut(dir, constants.oxygenWithPackage, CarePackage.REINFORCED_SUIT)) {
-                        uc.enlistAstronaut(dir, constants.oxygenWithPackage, CarePackage.REINFORCED_SUIT);
-                        break;
-                    }
-                    // survival kit
-                    if (uc.canEnlistAstronaut(dir, constants.oxygenWithPackage, CarePackage.SURVIVAL_KIT)) {
-                        uc.enlistAstronaut(dir, constants.oxygenWithPackage, CarePackage.SURVIVAL_KIT);
-                        break;
-                    }
-                    // Radio
-                    if (uc.canEnlistAstronaut(dir, constants.oxygenWithPackage, CarePackage.RADIO)) {
-                        uc.enlistAstronaut(dir, constants.oxygenWithPackage, CarePackage.RADIO);
-                        break;
-                    }
-                    // hyper jump
-                    if (uc.canEnlistAstronaut(dir, constants.oxygenWithPackage, CarePackage.HYPERJUMP)) {
-                        uc.enlistAstronaut(dir, constants.oxygenWithPackage, CarePackage.HYPERJUMP);
-                        break;
-                    }
-                    // Basic spawn
-                    if (uc.canEnlistAstronaut(dir, constants.oxygenNoPackage, null)) {
-                        uc.enlistAstronaut(dir, constants.oxygenNoPackage, null);
-                        break;
-                   }
+
+
+
+                int oxygen = health.getHealthSuggested();
+                Direction dir = spawnTargets.getSpawnLoc(uc.getLocation(), oxygen);
+
+                // TODO: consider not using max amount of oxygen
+                while (dir != null) {
+                    uc.enlistAstronaut(dir, oxygen, null);
+
+                    dir = spawnTargets.getSpawnLoc(uc.getLocation(), oxygen);
                 }
+
             }
 
 //            uc.println("checking amount left 1 " + uc.getPercentageOfEnergyLeft());

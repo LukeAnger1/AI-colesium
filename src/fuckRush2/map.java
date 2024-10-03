@@ -398,4 +398,12 @@ public class map {
         return true;
     }
 
+    public double abs(double value) {
+        return (value < 0) ? -value: value;
+    }
+
+    public int getTaxiDistenace(Location a, Location b) {
+        return (int)(abs(a.x - b.x) + abs(a.y - b.y));
+    }
+
 }

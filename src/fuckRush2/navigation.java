@@ -12,6 +12,8 @@ public class navigation {
     public Buffer CircularBuffer;
     public map map;
 
+    public UnitController uc;
+
     public navigation (constants constants, map map) {
         this.constants = constants;
         this.CircularBuffer = new Buffer(this.constants.circularBufferSize);
@@ -43,19 +45,19 @@ public class navigation {
         Direction dir;
 
         // If there is a goal location go in that direction
-        dir = greedyBFS(uc, start, end);
-        if (dir != null){
-            uc.performAction(ActionType.MOVE, dir, 0);
-            return;
-        }
-
-        // If there is a goal location go in that direction
-        // NOTE: Make sure this is never ran as greedyBFS should always run and domintate
-//        dir = basicDumbAssGoingInLine(uc, start, end, objects);
+//        dir = greedyBFS(uc, start, end);
 //        if (dir != null){
 //            uc.performAction(ActionType.MOVE, dir, 0);
 //            return;
 //        }
+
+        // If there is a goal location go in that direction
+        // NOTE: Make sure this is never ran as greedyBFS should always run and domintate
+        dir = basicDumbAssGoingInLine(uc, start, end);
+        if (dir != null){
+            uc.performAction(ActionType.MOVE, dir, 0);
+            return;
+        }
 
 
         // Move to explore
@@ -276,10 +278,11 @@ public class navigation {
     public boolean doWeKnowEnemyHQAndSet() {
         boolean holder = (constants.canBeVerticl && !constants.canBeRotational && !constants.canBeHorizontal) || (!constants.canBeVerticl && constants.canBeRotational && !constants.canBeHorizontal) || (!constants.canBeVerticl && !constants.canBeRotational && constants.canBeHorizontal);
 
+        // Go ahead and set enemy HQ locs
+        constants.enemyHQs = new Location[constants.ourHQs.length];
+
         // If there is only one symmetry we can find the enemy HQ locations
         if (holder) {
-            // Go ahead and set enemy HQ locs
-            constants.enemyHQs = new Location[constants.ourHQs.length];
 
             // Going to cycle through
             // NOTE: There is a better way to do this but I only know it in python
@@ -307,6 +310,28 @@ public class navigation {
             // This will sort the enemies to be optimally placed
             // IMPORTANT TODO: Have to implement this later
 //            sortEnemyHQsToBeOptimalWithOurHQ();
+        } else {
+
+            // We are going to make assumptions about the symmetry until we can figure it out better later, so fuck off bitch
+            if (constants.canBeHorizontal) {
+                for (int index = 0; index < constants.enemyHQs.length; index++) {
+                    constants.enemyHQs[index] = map.horizontalSymmerty(constants.ourHQs[index]);
+                }
+            } else {
+                if (constants.canBeVerticl) {
+                    for (int index = 0; index < constants.enemyHQs.length; index++) {
+                        constants.enemyHQs[index] = map.verticalSymmerty(constants.ourHQs[index]);
+                    }
+                } else {
+                    for (int index = 0; index < constants.enemyHQs.length; index++) {
+                        constants.enemyHQs[index] = map.rotationalSymmerty(constants.ourHQs[index]);
+                    }
+                }
+            }
+
+
+            // Sort the array so that every HQ has the same order to prevent conflicts with sending troups
+            sortLocationArray(constants.enemyHQs);
         }
 
         return false;
@@ -338,6 +363,15 @@ public class navigation {
 
             arr[indexToSort] = holder;
 
+        }
+
+        // This saves the index of our nhq location so we can use this in the corresponding enemy loc to help target which enemy HQ to go after
+        for (int index = 0; index < constants.ourHQs.length; index ++) {
+            // Save the index if they match
+            if (constants.ourHQs[index].equals(constants.ourLoc)) {
+                constants.ourHQIndex = index;
+                break;
+            }
         }
     }
 

@@ -52,6 +52,8 @@ public class constants {
     // This is ally HQs
     public Location[] ourHQs;
     public Location[] enemyHQs;
+    public int ourHQIndex = -1; // This is used for ourHQs to keep track of what enemyHQ they need to target
+    public Location ourLoc;
 
     // This is the spawn location
     public Location spawnLoc;

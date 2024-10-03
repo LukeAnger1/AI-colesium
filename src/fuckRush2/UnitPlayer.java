@@ -52,7 +52,7 @@ public class UnitPlayer {
             // Send the our initial positions
             // NOTE: this will be used by the HQs to start then it will contain what the bots should do
             int holder = map.locationToInt(uc.getLocation());
-            uc.println("trying to save value " + holder);
+//            uc.println("trying to save value " + holder);
             comms.commBroadcast(holder);
 
         } else {
@@ -74,11 +74,14 @@ public class UnitPlayer {
 
         // set up the navigation
         navigation = new navigation(constants, map);
+        navigation.uc = uc;
 
 
         uc.println("finished up first turn shit going into regular shit");
 
         while (true) {
+            // This sets our location
+            constants.ourLoc = uc.getLocation();
 
             //Case in which we are a HQ
             // IMPORTANT TODO: limit making astraunauts as they cost oxygen
@@ -148,23 +151,39 @@ public class UnitPlayer {
                 // This will check if we know enemy HQ locations and set them if we know them
                 // NOTE: Because of turn order we should be able to broadcast this information then retreive it in the same turn using the other bots
                 if (uc.getRound() == 5) {
-                    uc.println("in round 5 info");
+//                    uc.println("I am going to yield 1");
+//                    uc.yield();
+//                    uc.println("in round " + uc.getRound());
                     if (navigation.doWeKnowEnemyHQAndSet()) {
                         uc.println("really in round 5 info");
-                        for (Location allyLoc : map.myAstronautLocs) {
-                            // IMPORTANT NOTE: Change this to better destination after testing
-                            comms.commBroadcast(map.twoLocationsToInt(allyLoc, new Location(0, 0)));
-                        }
+                        uc.println("I am going to broadcast " + map.twoLocationsToInt(constants.ourLoc, constants.enemyHQs[constants.ourHQIndex]));
+                        comms.commBroadcast(map.twoLocationsToInt(constants.ourLoc, constants.enemyHQs[constants.ourHQIndex]));
                     }
+//                    uc.println("I am going to yield 2");
+//                    uc.yield();
+                }
+
+                // Need to do this better
+                // IMPORTANT TODO: got to makwe sure that doWeKnowAndSet alwasy sets
+                if (uc.getRound() > 5) {
+                    uc.println("in round " + uc.getRound());
+                    // Going to see if we can set
+                    navigation.doWeKnowEnemyHQAndSet();
+                    // IMPORTANT NOTE: Change this to better destination after testing
+//                    uc.println("I am going to yield 10 my HQ index is " + constants.ourHQIndex);
+//                    uc.yield();
+//                    uc.println("I am going to broadcast " + map.twoLocationsToInt(constants.ourLoc, constants.enemyHQs[constants.ourHQIndex]));
+//                    uc.yield();
+                    comms.commBroadcast(map.twoLocationsToInt(constants.ourLoc, constants.enemyHQs[constants.ourHQIndex]));
                 }
 
                 for (Direction dir : constants.directions) {
                     // Settlement
-                    uc.println("trying to make an settlement");
+//                    uc.println("trying to make an settlement");
                     if (uc.canEnlistAstronaut(dir, constants.oxygenWithPackage, CarePackage.SETTLEMENT)) {
-                        uc.println("I think I can build");
+//                        uc.println("I think I can build");
                         uc.enlistAstronaut(dir, constants.oxygenWithPackage, CarePackage.SETTLEMENT);
-                        uc.println("after trying to build");
+//                        uc.println("after trying to build");
                         break;
                     }
                     // Dome
@@ -200,14 +219,14 @@ public class UnitPlayer {
                 }
             }
 
-            uc.println("checking amount left 1 " + uc.getPercentageOfEnergyLeft());
+//            uc.println("checking amount left 1 " + uc.getPercentageOfEnergyLeft());
 
             // Code to be executed every round, if we are astraunaut and not being made
             if (!constants.isStructure && !uc.getAstronautInfo().isBeingConstructed()) {
 
                 // record everything for the turn
                 map.record(uc);
-                uc.println("checking amount left 1.1 " + uc.getPercentageOfEnergyLeft());
+//                uc.println("checking amount left 1.1 " + uc.getPercentageOfEnergyLeft());
 
                 // Get the targets to go after
                 Location end = null;
@@ -215,15 +234,17 @@ public class UnitPlayer {
                 // There should be instructions posted in the comms, will retreive them every turn
                 // IMPORTANT NOTE: Eventually change this to allow bots to communicate with HQ
                 Buffer possLocWithTarget = comms.getAllComms();
+//                uc.println("the possible loc with target are " + possLocWithTarget);
                 for (int index = 0; index < possLocWithTarget.size(); index ++) {
                     Location[] holder = map.intToTwoLocations(possLocWithTarget.get(index));
                     Location ourLoc = holder[0];
                     Location possPermTarget = holder[1];
-                    uc.println("I am getting ourLoc as " + ourLoc + " I am going to " + target);
+//                    uc.println("I am getting parent location as " + ourLoc + " I am going to " + target);
 
                     // Check if ourLoc matches to then set target if it does as this is a command for us to move
-                    // TODO: Change this to use the parent location
-                    if (ourLoc.equals(uc.getLocation())) {
+                    uc.println("th epossible parent location is " + ourLoc + " the target location is " + possPermTarget);
+                    if (ourLoc.equals(uc.getParent().getLocation())) {
+//                        uc.println("my parent location is " + uc.getParent().getLocation());
                         target.permTarget = possPermTarget;
                         end = possPermTarget;
                     }
@@ -237,7 +258,7 @@ public class UnitPlayer {
 
                 // Use perm target if we have one
                 if (end == null) {
-                    uc.println("the perm target is " + target.permTarget);
+//                    uc.println("the perm target is " + target.permTarget);
                     end = target.permTarget;
                 }
 
@@ -258,20 +279,18 @@ public class UnitPlayer {
                 // IMPORATANT TODO: Finish the objects that get in the way to be better
                 navigation.navigateTo(uc, null, end, map.bots);
 
-                uc.println("checking amount left 1.2 " + uc.getPercentageOfEnergyLeft());
+//                uc.println("checking amount left 1.2 " + uc.getPercentageOfEnergyLeft());
 
                 // Try to sabotage anything we are near
                 // TODO: We shouldnt check this every turn like this
                 for (Direction dir : constants.directions) {
                     Location adjLocation = uc.getLocation().add(dir);
                     if (!uc.canSenseLocation(adjLocation)) continue;
-                    uc.println("Checking " + adjLocation + " to see if there is an opponent permanet structure");
                     // TODO: Use grid logic later
                     StructureInfo possibleEnemy = uc.senseStructure(adjLocation);
                     if (possibleEnemy == null) continue;
                     if (possibleEnemy.getTeam().equals(constants.myTeam)) continue;
                     // Location opponentStructureLoc = map.grid_shit[adjLocation.x][adjLocation.y] == constants.oppoennt_permanent_structure ? adjLocation: null;
-                    uc.println("going to try to sabotage");
                     if (uc.canPerformAction(ActionType.SABOTAGE, dir, 0)) {
                         uc.println("Sabotaging");
                         uc.performAction(ActionType.SABOTAGE, dir, 0);
@@ -297,7 +316,7 @@ public class UnitPlayer {
                     }
                 }
 
-                uc.println("checking amount left 2 " + uc.getPercentageOfEnergyLeft());
+//                uc.println("checking amount left 2 " + uc.getPercentageOfEnergyLeft());
 
                 if (myCarePackage != null) {
                     // If we are Dome build dome in a surrounding square

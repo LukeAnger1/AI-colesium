@@ -33,30 +33,31 @@ public class comms {
             uc.println("Try to call this function every even turn!!!");
         }
 
-        uc.println("comms 1 with " + uc.getPercentageOfEnergyLeft());
+//        uc.println("comms 1 with " + uc.getPercentageOfEnergyLeft());
 
         // Reset the circular buffer if it is a new turn
         if (roundNum != uc.getRound()) {
             Buffer.clear();
             roundNum = uc.getRound();
-            uc.println("clearing the buffer, the buffer has size " + Buffer.size());
-        } else {
-            uc.println("not clearing the buffer");
         }
+//            uc.println("clearing the buffer, the buffer has size " + Buffer.size());
+//        } else {
+//            uc.println("not clearing the buffer");
+//        }
 
-        uc.println("comms 2 with " + uc.getPercentageOfEnergyLeft());
+//        uc.println("comms 2 with " + uc.getPercentageOfEnergyLeft());
 
         BroadcastInfo broadcastInfo = uc.pollBroadcast();
 
         // Go through every message that isnt null
         while (broadcastInfo != null) {
             int value = broadcastInfo.getMessage();
-            uc.println("the message value is " + value);
+//            uc.println("the message value is " + value);
             Buffer.add(value);
             broadcastInfo = uc.pollBroadcast();
         }
 
-        uc.println("comms 6 with " + uc.getPercentageOfEnergyLeft());
+//        uc.println("comms 6 with " + uc.getPercentageOfEnergyLeft());
 
         // return the answer
         return Buffer;
@@ -65,7 +66,7 @@ public class comms {
     public void commBroadcast(int value) {
         // Try to call this function only every odd turn
         if (uc.getRound() == 0) {
-            uc.println("Try to call this function only on odd turns");
+//            uc.println("Try to call this function only on odd turns");
         }
         uc.performAction(ActionType.BROADCAST, null, value);
     }

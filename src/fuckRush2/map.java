@@ -64,7 +64,7 @@ public class map {
             myAstronautLocs[index] = myAstronauts[index].getLocation();
         }
 
-        uc.println("checking amount left inside map 2 " + uc.getPercentageOfEnergyLeft());
+//        uc.println("checking amount left inside map 2 " + uc.getPercentageOfEnergyLeft());
 
         // Get the opponent astraunauts
         opponentAstronauts = uc.senseAstronauts((float) constants.visionRadius, constants.opponentTeam);
@@ -83,7 +83,7 @@ public class map {
         }
 
         // Save the DOMES
-        uc.println("checking amount left inside map 3 " + uc.getPercentageOfEnergyLeft());
+//        uc.println("checking amount left inside map 3 " + uc.getPercentageOfEnergyLeft());
 
         // DOME TILES
         // Location[] domeTiles = uc.senseObjects(MapObject.DOMED_TILE, (float) constants.visionRadius);
@@ -143,21 +143,21 @@ public class map {
         // TERRAFORMED
         terraforms = uc.senseObjects(MapObject.TERRAFORMED, (float) constants.visionRadius);
 
-        uc.println("checking amount left inside map 4 " + uc.getPercentageOfEnergyLeft());
+//        uc.println("checking amount left inside map 4 " + uc.getPercentageOfEnergyLeft());
 
         // WATER
         // NOTE: May not have to run all of these checks
         water = uc.senseObjects(MapObject.WATER, (float) constants.visionRadius);
         for (Location waterLoc : water) {
-            uc.println("adding water to " + waterLoc.x + " " + waterLoc.y);
-            uc.println("checking amount left inside map water " + uc.getPercentageOfEnergyLeft());
+//            uc.println("adding water to " + waterLoc.x + " " + waterLoc.y);
+//            uc.println("checking amount left inside map water " + uc.getPercentageOfEnergyLeft());
             grid_shit[waterLoc.x][waterLoc.y] = constants.water;
         }
 
         // NOTE: This is for bots
         bots = helper.combineArrays(myAstronautLocs, oponnentAstronautLocs);
 
-        uc.println("checking amount left inside map 5 " + uc.getPercentageOfEnergyLeft());
+//        uc.println("checking amount left inside map 5 " + uc.getPercentageOfEnergyLeft());
 
         // This is the array of everything that is in the way
 //        obstacles = helper.combineArrays(uc, myAstronautLocs, oponnentAstronautLocs, domes, water);
@@ -176,7 +176,7 @@ public class map {
 //            }
 //        }
 
-        uc.println("checking amount left inside map 6 " + uc.getPercentageOfEnergyLeft());
+//        uc.println("checking amount left inside map 6 " + uc.getPercentageOfEnergyLeft());
 
         ///// Use this for debugging the map
 
@@ -307,14 +307,23 @@ public class map {
         // loop through all of our HQs
         for (Location ourHQLoc: constants.ourHQs) {
 
+            uc.println("rot I am inside the for loop with our HQ loc " + ourHQLoc);
+
             // Rotate the HQ to be where the enemy should be
             Location possibleEnemyLoc = rotationalSymmerty(ourHQLoc);
 
+            uc.println("rot while the distance is " + ourHQLoc.distanceSquared(possibleEnemyLoc) + " with an enemy location of " + possibleEnemyLoc);
+
+            // Make sure it doesnt fall on top of our enemy locations
+            if (helper.isIn(possibleEnemyLoc, constants.ourHQs)) {
+                return false;
+            }
+
             // Check if it should be visible
-            uc.println("the distance squared is " + ourHQLoc.distanceSquared(possibleEnemyLoc) + " and the vision radius is " + constants.visionRadius + " while ourHQ is at " + ourHQLoc);
+//            uc.println("the distance squared is " + ourHQLoc.distanceSquared(possibleEnemyLoc) + " and the vision radius is " + constants.visionRadius + " while ourHQ is at " + ourHQLoc);
             if (uc.getLocation().distanceSquared(possibleEnemyLoc) <= constants.visionRadius) {
                 // If it should be viisble and isnt return false
-                uc.println("The possibleEnemyLoc is " + possibleEnemyLoc);
+                uc.println("hor possible enemy loc is in our HQs is " + helper.isIn(possibleEnemyLoc, constants.ourHQs) + " while our HQs are " + constants.ourHQs + " and the loc is " + possibleEnemyLoc);
                 if (!helper.isIn(possibleEnemyLoc, opponentStructureLocs)) {
                     return false;
                 }
@@ -331,12 +340,23 @@ public class map {
         // loop through all of our HQs
         for (Location ourHQLoc : constants.ourHQs) {
 
+            uc.println("hor I am inside the for loop with our HQ loc " + ourHQLoc);
+
             // Reflect the HQ across the horizontal axis
             Location possibleEnemyLoc = horizontalSymmerty(ourHQLoc);
+
+            uc.println("hor while the distance is " + ourHQLoc.distanceSquared(possibleEnemyLoc) + " with an enemy location of " + possibleEnemyLoc);
+
+            // Make sure it doesnt fall on top of our enemy locations
+            if (helper.isIn(possibleEnemyLoc, constants.ourHQs)) {
+                return false;
+            }
 
             // Check if it should be visible
             if (ourHQLoc.distanceSquared(possibleEnemyLoc) <= constants.visionRadius) {
                 // If it should be visible and isn't, return false
+                uc.println("hor possible enemy loc is in our HQs is " + helper.isIn(possibleEnemyLoc, constants.ourHQs) + " while our HQs are " + constants.ourHQs + " and the loc is " + possibleEnemyLoc);
+
                 if (!helper.isIn(possibleEnemyLoc, opponentStructureLocs)) {
                     return false;
                 }
@@ -349,11 +369,17 @@ public class map {
 
     // Try to eliminate vertical symmetry
     public boolean canStillBeVertical() {
+        uc.println("checking if can be vertical");
         // loop through all of our HQs
         for (Location ourHQLoc : constants.ourHQs) {
 
             // Reflect the HQ across the vertical axis
             Location possibleEnemyLoc = verticalSymmerty(ourHQLoc);
+
+            // Make sure it doesnt fall on top of our enemy locations
+            if (helper.isIn(possibleEnemyLoc, constants.ourHQs)) {
+                return false;
+            }
 
             // Check if it should be visible
             if (ourHQLoc.distanceSquared(possibleEnemyLoc) <= constants.visionRadius) {

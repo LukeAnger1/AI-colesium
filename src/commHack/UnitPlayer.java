@@ -175,8 +175,8 @@ public class UnitPlayer {
 
                 // Need to do this better
                 // IMPORTANT TODO: got to makwe sure that doWeKnowAndSet alwasy sets
-//                if (uc.getRound() > 5 && uc.getRound() % 2 == 1) {
-                if (uc.getRound() > 5) {
+                if (uc.getRound() > 5 && uc.getRound() % 2 == 1) {
+//                if (uc.getRound() > 5) {
                     uc.println("in round " + uc.getRound());
                     // Going to see if we can set
                     navigation.doWeKnowEnemyHQAndSet();
@@ -215,7 +215,7 @@ public class UnitPlayer {
                 // Get the targets to go after
                 Location end = null;
 
-                if (uc.getRound() % 2 == 1 || true) {
+                if (uc.getRound() % 2 == 1) {
                     // There should be instructions posted in the comms, will retreive them every turn
                     // IMPORTANT NOTE: Eventually change this to allow bots to communicate with HQ
                     Buffer possLocWithTarget = comms.getAllComms();

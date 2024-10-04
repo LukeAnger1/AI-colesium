@@ -50,7 +50,7 @@ public class spawnTargets {
         for (int i = 0; i < 3; i ++) {
             right = right.rotateRight();
 
-            uc.println("trying to spawn on the right " + right);
+//            uc.println("trying to spawn on the right " + right);
 
             if (uc.canEnlistAstronaut(right, health, null)) {
                 return right;
@@ -58,7 +58,7 @@ public class spawnTargets {
 
             left = left.rotateLeft();
 
-            uc.println("trying to spawn on the left " + left);
+//            uc.println("trying to spawn on the left " + left);
 
             if (uc.canEnlistAstronaut(left, health, null)) {
                 return left;

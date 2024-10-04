@@ -193,8 +193,10 @@ public class UnitPlayer {
 
                 // Need to do this better
                 // IMPORTANT TODO: got to makwe sure that doWeKnowAndSet alwasy sets
-                if (uc.getRound() > 5 && uc.getRound() % 2 == 1) {
-//                if (uc.getRound() > 5) {
+                // DONT CHECK EVERY HQ for getAllHack because the first one is the only one that
+                // This is the basic comunicatino receiving from bots
+                if (uc.getRound() > 5) {
+
                     uc.println("in round " + uc.getRound());
                     // Going to see if we can set
                     navigation.doWeKnowEnemyHQAndSet();
@@ -225,14 +227,14 @@ public class UnitPlayer {
 
                 // record everything for the turn
                 map.record(uc);
-//                uc.println("checking amount left 1.1 " + uc.getPercentageOfEnergyLeft());
 
                 // Get the targets to go after
                 Location end = null;
 
-                if (uc.getRound() % 2 == 1) {
                     // There should be instructions posted in the comms, will retreive them every turn
                     // IMPORTANT NOTE: Eventually change this to allow bots to communicate with HQ
+
+                    // IM{ORATNT TODO: REMOVE THIS AFTER TESTING
                     Buffer possLocWithTarget = comms.getAllComms();
                     //                uc.println("the possible loc with target are " + possLocWithTarget);
                     for (int index = 0; index < possLocWithTarget.size(); index++) {
@@ -250,6 +252,7 @@ public class UnitPlayer {
                         }
                         if (ourLoc.equals(uc.getParent().getLocation())) {
                             target.permTarget = possPermTarget;
+                            constants.listeningToHQIndex = index;
                             end = possPermTarget;
                             uc.println("setting as target " + target.permTarget);
                             break;
@@ -264,10 +267,10 @@ public class UnitPlayer {
                     }
                     // reset the saved distance to use later for net target
                     target.secondaryDist = -1;
-                }
 
                 // Check if we have eliminated the target
                 if (target.permTarget != null && target.permTarget.distanceSquared(constants.ourLoc) <= constants.visionRadius && !helper.isIn(target.permTarget, map.opponentStructureLocs)) {
+                    // IMPORTANT TODO: Add logic to notify the HQ that there is no building
                     constants.eleminatedTargets[constants.eleminatedTargetsIndex++] = target.permTarget;
                     target.permTarget = null;
                 }
@@ -279,6 +282,8 @@ public class UnitPlayer {
                     uc.println("found enemy!! Going to attack");
                     end = target.getClosestEnemyStructure(uc);
                 }
+
+                // TODO: Check if we can make it to the perm target, if not then dont go there
 
                 // Use perm target if we have one
                 if (end == null) {

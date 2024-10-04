@@ -56,10 +56,15 @@ public class constants {
     // Is first HQ?
     public boolean isFirstHQ;
 
+    // This controls if our bot should go afger packages, and it should if there is no target in sight in my opinion
+    public boolean goAfterCarePackage = false;
+
     // This is ally HQs
     public Location[] ourHQs;
     public Location[] enemyHQs;
     public int ourHQIndex = -1; // This is used for ourHQs to keep track of what enemyHQ they need to target
+    // This is the listenToHQIndex we are listening to for enemy locs
+    public int listeningToHQIndex = -1;
     public Location ourLoc;
 
     // This is the spawn location

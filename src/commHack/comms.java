@@ -17,7 +17,7 @@ public class comms {
     public Buffer Buffer;
     public UnitController uc;
     public int roundNum = -1;
-    public final int nullMessage = -1;
+    public final int nullMessage = 1;
     public final int lengthOfBooleanHackMessage = 6;
     public final int howManyNullMessages = (1 << (lengthOfBooleanHackMessage + 1)) - 1;
 
@@ -109,6 +109,7 @@ public class comms {
     // TODO: Each HQ will add this, for now going to mod it but idk may fix this later
     public void setupHackComms () {
         for (int i = 0; i < howManyNullMessages; i ++) {
+            uc.println("setting up the " + (i+1) + " setup");
             uc.performAction(ActionType.BROADCAST, null, nullMessage);
         }
     }
@@ -142,6 +143,8 @@ public class comms {
             }
             broadcastInfo = uc.pollBroadcast();
         }
+
+        uc.println("the count for the hack is " + count);
 
         count = count % howManyNullMessages;
 

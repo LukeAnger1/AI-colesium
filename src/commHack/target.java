@@ -9,6 +9,8 @@ public class target {
     public constants constants;
     public map map;
     public Location permTarget;
+    public int secondaryDist = -1;
+    public Location secondPermTarget;
 
     // Set up target with the needed packages
     public target(map map, constants constants) {

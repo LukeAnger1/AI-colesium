@@ -49,6 +49,10 @@ public class constants {
     public final int SETTLEMENT_VALUE = -1;
     public final int SURVIVAL_KIT_VALUE = 2;
 
+    // This keeps track of targets that we shouldnt visit again
+    public int eleminatedTargetsIndex = 0;
+    public Location[] eleminatedTargets = new Location[100];
+
     // Is first HQ?
     public boolean isFirstHQ;
 

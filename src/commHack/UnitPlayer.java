@@ -118,27 +118,6 @@ public class UnitPlayer {
 
                 map.record(uc);
 
-//                // Figure out which HQ is first turn
-//                // TODO: Fix this when the first HQ is taken down
-//                if (uc.getRound() == 1) {
-//                    // If this is empty I am first, then broadcast so others know they arent first
-//                    Buffer amINotFirst = comms.getAllComms();
-//
-//                    uc.println("the comms are " + amINotFirst);
-//
-//                    if (amINotFirst.isEmpty()) {
-//                        // Set to I am first then broadcast to others
-//                        constants.isFirstHQ = true;
-//                        uc.performAction(ActionType.BROADCAST, null, comms.nullMessage);
-//                    } else {
-//                        // set to I am not first and poll so that the broadcast is empty
-//                        constants.isFirstHQ = false;
-//                        uc.pollBroadcast();
-//                    }
-//
-//                    uc.println("I am first is " + constants.isFirstHQ);
-//                }
-
                 // Turn 2 as HQ we are going to get all broadcasted ally HQ locations
                 if (uc.getRound() == 2) {
                     // Get all ally HQ locations in the buffer
@@ -227,9 +206,6 @@ public class UnitPlayer {
                     comms.commBroadcast(map.twoLocationsToInt(constants.ourLoc, constants.enemyHQs[constants.ourHQIndex]));
                 }
 
-
-
-
                 int oxygen = health.getHealthSuggested();
                 Direction dir = spawnTargets.getSpawnLoc(uc.getLocation(), oxygen);
 
@@ -267,14 +243,35 @@ public class UnitPlayer {
 
                         // Check if ourLoc matches to then set target if it does as this is a command for us to move
                         uc.println("th epossible parent location is " + ourLoc + " the target location is " + possPermTarget);
+
+                        // Skip the targets we dont want to hit anymore
+                        if (helper.isIn(possPermTarget, constants.eleminatedTargets)) {
+                            continue;
+                        }
                         if (ourLoc.equals(uc.getParent().getLocation())) {
                             target.permTarget = possPermTarget;
                             end = possPermTarget;
                             uc.println("setting as target " + target.permTarget);
                             break;
                         }
+
+                        // set as the secondary target if we dont have one yet
+                        int distHolder = constants.ourLoc.distanceSquared(possPermTarget);
+                        if ((target.secondaryDist == -1) || (target.secondaryDist > distHolder)) {
+                            target.secondPermTarget = possPermTarget;
+                            target.secondaryDist = distHolder;
+                        }
                     }
+                    // reset the saved distance to use later for net target
+                    target.secondaryDist = -1;
                 }
+
+                // Check if we have eliminated the target
+                if (target.permTarget != null && target.permTarget.distanceSquared(constants.ourLoc) <= constants.visionRadius && !helper.isIn(target.permTarget, map.opponentStructureLocs)) {
+                    constants.eleminatedTargets[constants.eleminatedTargetsIndex++] = target.permTarget;
+                    target.permTarget = null;
+                }
+                // TODO: After eliminating target where should I go?
 
                 // Go try to sabatoge
                 // IMPORTANT NOTE: Because sabotage takes priority they will try to do this over going to their target
@@ -287,6 +284,11 @@ public class UnitPlayer {
                 if (end == null) {
                     uc.println("the perm target is " + target.permTarget);
                     end = target.permTarget;
+                }
+
+                if (end == null) {
+                    uc.println("the secondary target is " + target.secondPermTarget);
+                    end = target.secondPermTarget;
                 }
 
                 // only target care packages if u dont have one otherwiase there is a waste as picking one up kills u
@@ -327,60 +329,60 @@ public class UnitPlayer {
                     }
                 }
 
-                // Dont pick up care packages if u have a care package
-                // TODO: Like lets just quit picking up these care packages
-                if (myCarePackage == null) {
-                    //Check if there arsenseStructure(Location loc)e Care Packages at an adjacent tile. If so, retrieve them.
-                    // TODO: We shouldnt check this every turn like this
-                    for (Direction dir : constants.directions) {
-                        Location adjLocation = uc.getLocation().add(dir);
-                        if (!uc.canSenseLocation(adjLocation)) continue;
-                        // TODO: Change this to use grid_shit
-                        CarePackage cp = uc.senseCarePackage(adjLocation);
-                        if (cp != null) {
-                            if (uc.canPerformAction(ActionType.RETRIEVE, dir, 0)) {
-                                uc.performAction(ActionType.RETRIEVE, dir, 0);
-                                break;
-                            }
-                        }
-                    }
-                }
-
-//                uc.println("checking amount left 2 " + uc.getPercentageOfEnergyLeft());
-
-                if (myCarePackage != null) {
-                    // If we are Dome build dome in a surrounding square
-                    // TODO: choose to build better than when we run out of oxygen
-                    if (myCarePackage.equals(CarePackage.DOME) && uc.getAstronautInfo().getOxygen() <= 2) {
-                        // Make this better later
-                        int dirIndex = (int) (uc.getRandomDouble() * 8.0);
-                        Direction randomDir = constants.directions[dirIndex];
-                        for (int i = 0; i < 8; ++i) {
-                            //Note that the 'value' of the following command is irrelevant.
-                            if (uc.canPerformAction(ActionType.BUILD_DOME, randomDir, 0)) {
-                                uc.performAction(ActionType.BUILD_DOME, randomDir, 0);
-                                break;
-                            }
-                            randomDir = randomDir.rotateRight();
-                        }
-                    }
-
-                    // If we are settlement build in a sourounding square
-                    // TODO: choose to build better than when we run out of oxygen
-                    if (myCarePackage.equals(CarePackage.SETTLEMENT) && uc.getAstronautInfo().getOxygen() <= 2) {
-                        // Make this better later
-                        int dirIndex = (int) (uc.getRandomDouble() * 8.0);
-                        Direction randomDir = constants.directions[dirIndex];
-                        for (int i = 0; i < 8; ++i) {
-                            //Note that the 'value' of the following command is irrelevant.
-                            if (uc.canPerformAction(ActionType.BUILD_SETTLEMENT, randomDir, 0)) {
-                                uc.performAction(ActionType.BUILD_SETTLEMENT, randomDir, 0);
-                                break;
-                            }
-                            randomDir = randomDir.rotateRight();
-                        }
-                    }
-                }
+//                // Dont pick up care packages if u have a care package
+//                // TODO: Like lets just quit picking up these care packages
+//                if (myCarePackage == null) {
+//                    //Check if there arsenseStructure(Location loc)e Care Packages at an adjacent tile. If so, retrieve them.
+//                    // TODO: We shouldnt check this every turn like this
+//                    for (Direction dir : constants.directions) {
+//                        Location adjLocation = uc.getLocation().add(dir);
+//                        if (!uc.canSenseLocation(adjLocation)) continue;
+//                        // TODO: Change this to use grid_shit
+//                        CarePackage cp = uc.senseCarePackage(adjLocation);
+//                        if (cp != null) {
+//                            if (uc.canPerformAction(ActionType.RETRIEVE, dir, 0)) {
+//                                uc.performAction(ActionType.RETRIEVE, dir, 0);
+//                                break;
+//                            }
+//                        }
+//                    }
+//                }
+//
+////                uc.println("checking amount left 2 " + uc.getPercentageOfEnergyLeft());
+//
+//                if (myCarePackage != null) {
+//                    // If we are Dome build dome in a surrounding square
+//                    // TODO: choose to build better than when we run out of oxygen
+//                    if (myCarePackage.equals(CarePackage.DOME) && uc.getAstronautInfo().getOxygen() <= 2) {
+//                        // Make this better later
+//                        int dirIndex = (int) (uc.getRandomDouble() * 8.0);
+//                        Direction randomDir = constants.directions[dirIndex];
+//                        for (int i = 0; i < 8; ++i) {
+//                            //Note that the 'value' of the following command is irrelevant.
+//                            if (uc.canPerformAction(ActionType.BUILD_DOME, randomDir, 0)) {
+//                                uc.performAction(ActionType.BUILD_DOME, randomDir, 0);
+//                                break;
+//                            }
+//                            randomDir = randomDir.rotateRight();
+//                        }
+//                    }
+//
+//                    // If we are settlement build in a sourounding square
+//                    // TODO: choose to build better than when we run out of oxygen
+//                    if (myCarePackage.equals(CarePackage.SETTLEMENT) && uc.getAstronautInfo().getOxygen() <= 2) {
+//                        // Make this better later
+//                        int dirIndex = (int) (uc.getRandomDouble() * 8.0);
+//                        Direction randomDir = constants.directions[dirIndex];
+//                        for (int i = 0; i < 8; ++i) {
+//                            //Note that the 'value' of the following command is irrelevant.
+//                            if (uc.canPerformAction(ActionType.BUILD_SETTLEMENT, randomDir, 0)) {
+//                                uc.performAction(ActionType.BUILD_SETTLEMENT, randomDir, 0);
+//                                break;
+//                            }
+//                            randomDir = randomDir.rotateRight();
+//                        }
+//                    }
+//                }
 
                 //If we have 1 or 2 oxygen left, terraform my tile (alternatively, terraform a random tile)
                 if (uc.getAstronautInfo().getOxygen() <= 2) {

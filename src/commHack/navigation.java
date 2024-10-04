@@ -523,10 +523,24 @@ public class navigation {
 //            sortEnemyHQsToBeOptimalWithOurHQ();
         } else {
 
-            // We are going to make assumptions about the symmetry until we can figure it out better later, so fuck off bitch
-            if (constants.canBeHorizontal) {
-                for (int index = 0; index < constants.enemyHQs.length; index++) {
-                    constants.enemyHQs[index] = map.horizontalSymmerty(constants.ourHQs[index]);
+            // We are going to guess at the symmetry
+            // We are going to guss the closest one first
+            if (constants.width < constants.height) {
+                // Assume horizontal first
+                if (constants.canBeHorizontal) {
+                    for (int index = 0; index < constants.enemyHQs.length; index++) {
+                        constants.enemyHQs[index] = map.horizontalSymmerty(constants.ourHQs[index]);
+                    }
+                } else {
+                    if (constants.canBeRotational) {
+                        for (int index = 0; index < constants.enemyHQs.length; index++) {
+                            constants.enemyHQs[index] = map.rotationalSymmerty(constants.ourHQs[index]);
+                        }
+                    } else {
+                        for (int index = 0; index < constants.enemyHQs.length; index++) {
+                            constants.enemyHQs[index] = map.verticalSymmerty(constants.ourHQs[index]);
+                        }
+                    }
                 }
             } else {
                 if (constants.canBeVerticl) {
@@ -534,11 +548,18 @@ public class navigation {
                         constants.enemyHQs[index] = map.verticalSymmerty(constants.ourHQs[index]);
                     }
                 } else {
-                    for (int index = 0; index < constants.enemyHQs.length; index++) {
-                        constants.enemyHQs[index] = map.rotationalSymmerty(constants.ourHQs[index]);
+                    if (constants.canBeRotational) {
+                        for (int index = 0; index < constants.enemyHQs.length; index++) {
+                            constants.enemyHQs[index] = map.rotationalSymmerty(constants.ourHQs[index]);
+                        }
+                    } else {
+                        for (int index = 0; index < constants.enemyHQs.length; index++) {
+                            constants.enemyHQs[index] = map.horizontalSymmerty(constants.ourHQs[index]);
+                        }
                     }
                 }
             }
+
 
 
             // Sort the array so that every HQ has the same order to prevent conflicts with sending troups

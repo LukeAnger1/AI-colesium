@@ -175,6 +175,7 @@ public class UnitPlayer {
 
                 // Need to do this better
                 // IMPORTANT TODO: got to makwe sure that doWeKnowAndSet alwasy sets
+//                if (uc.getRound() > 5 && uc.getRound() % 2 == 1) {
                 if (uc.getRound() > 5) {
                     uc.println("in round " + uc.getRound());
                     // Going to see if we can set
@@ -182,7 +183,7 @@ public class UnitPlayer {
                     // IMPORTANT NOTE: Change this to better destination after testing
 //                    uc.println("I am going to yield 10 my HQ index is " + constants.ourHQIndex);
 //                    uc.yield();
-//                    uc.println("I am going to broadcast " + map.twoLocationsToInt(constants.ourLoc, constants.enemyHQs[constants.ourHQIndex]));
+                    uc.println("I am going to broadcast " + map.twoLocationsToInt(constants.ourLoc, constants.enemyHQs[constants.ourHQIndex]) + " our Loc is " + constants.ourLoc + " enemy is " + constants.enemyHQs[constants.ourHQIndex]);
 //                    uc.yield();
                     comms.commBroadcast(map.twoLocationsToInt(constants.ourLoc, constants.enemyHQs[constants.ourHQIndex]));
                 }
@@ -214,35 +215,38 @@ public class UnitPlayer {
                 // Get the targets to go after
                 Location end = null;
 
-                // There should be instructions posted in the comms, will retreive them every turn
-                // IMPORTANT NOTE: Eventually change this to allow bots to communicate with HQ
-                Buffer possLocWithTarget = comms.getAllComms();
-//                uc.println("the possible loc with target are " + possLocWithTarget);
-                for (int index = 0; index < possLocWithTarget.size(); index ++) {
-                    Location[] holder = map.intToTwoLocations(possLocWithTarget.get(index));
-                    Location ourLoc = holder[0];
-                    Location possPermTarget = holder[1];
-//                    uc.println("I am getting parent location as " + ourLoc + " I am going to " + target);
+                if (uc.getRound() % 2 == 1 || true) {
+                    // There should be instructions posted in the comms, will retreive them every turn
+                    // IMPORTANT NOTE: Eventually change this to allow bots to communicate with HQ
+                    Buffer possLocWithTarget = comms.getAllComms();
+                    //                uc.println("the possible loc with target are " + possLocWithTarget);
+                    for (int index = 0; index < possLocWithTarget.size(); index++) {
+                        Location[] holder = map.intToTwoLocations(possLocWithTarget.get(index));
+                        Location ourLoc = holder[0];
+                        Location possPermTarget = holder[1];
+                        //                    uc.println("I am getting parent location as " + ourLoc + " I am going to " + target);
 
-                    // Check if ourLoc matches to then set target if it does as this is a command for us to move
-                    uc.println("th epossible parent location is " + ourLoc + " the target location is " + possPermTarget);
-                    if (ourLoc.equals(uc.getParent().getLocation())) {
-                        target.permTarget = possPermTarget;
-                        end = possPermTarget;
-                        uc.println("setting as target " + target.permTarget);
-                        break;
+                        // Check if ourLoc matches to then set target if it does as this is a command for us to move
+                        uc.println("th epossible parent location is " + ourLoc + " the target location is " + possPermTarget);
+                        if (ourLoc.equals(uc.getParent().getLocation())) {
+                            target.permTarget = possPermTarget;
+                            end = possPermTarget;
+                            uc.println("setting as target " + target.permTarget);
+                            break;
+                        }
                     }
                 }
 
                 // Go try to sabatoge
                 // IMPORTANT NOTE: Because sabotage takes priority they will try to do this over going to their target
                 if (end == null) {
+                    uc.println("found enemy!! Going to attack");
                     end = target.getClosestEnemyStructure(uc);
                 }
 
                 // Use perm target if we have one
                 if (end == null) {
-//                    uc.println("the perm target is " + target.permTarget);
+                    uc.println("the perm target is " + target.permTarget);
                     end = target.permTarget;
                 }
 
@@ -256,6 +260,7 @@ public class UnitPlayer {
                 // Pick the center of the map for shits and giggles, I dont really like this
                 // NOTE: targeting a location is significantly better
                 if (end == null) {
+                    uc.println("Going to the center");
                     end = new Location(constants.width / 2, constants.height / 2);
                 }
 
@@ -267,6 +272,7 @@ public class UnitPlayer {
 
                 // Try to sabotage anything we are near
                 // TODO: We shouldnt check this every turn like this
+                // TODO: Dont sabotage astraunauts only main structures
                 for (Direction dir : constants.directions) {
                     Location adjLocation = uc.getLocation().add(dir);
                     if (!uc.canSenseLocation(adjLocation)) continue;
@@ -283,6 +289,7 @@ public class UnitPlayer {
                 }
 
                 // Dont pick up care packages if u have a care package
+                // TODO: Like lets just quit picking up these care packages
                 if (myCarePackage == null) {
                     //Check if there arsenseStructure(Location loc)e Care Packages at an adjacent tile. If so, retrieve them.
                     // TODO: We shouldnt check this every turn like this

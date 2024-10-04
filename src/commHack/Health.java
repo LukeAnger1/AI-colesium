@@ -9,7 +9,7 @@ import commHack.*;
 
 public class Health {
     // Astraunats lose 1 oxygen every turn not under construction
-    public final double HealthPerDistance = 1.5;
+    public final double HealthPerDistance = 2;
     public final int startingHealth;
 
     public map map;

@@ -49,6 +49,9 @@ public class constants {
     public final int SETTLEMENT_VALUE = -1;
     public final int SURVIVAL_KIT_VALUE = 2;
 
+    // Is first HQ?
+    public boolean isFirstHQ;
+
     // This is ally HQs
     public Location[] ourHQs;
     public Location[] enemyHQs;

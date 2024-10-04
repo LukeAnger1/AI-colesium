@@ -17,6 +17,9 @@ public class comms {
     public Buffer Buffer;
     public UnitController uc;
     public int roundNum = -1;
+    public final int nullMessage = -1;
+    public final int lengthOfBooleanHackMessage = 6;
+    public final int howManyNullMessages = (1 << (lengthOfBooleanHackMessage + 1)) - 1;
 
     // The Circular buffer is how much information can be stored during the turn
     public comms (UnitController uc, Buffer Buffer) {
@@ -52,8 +55,11 @@ public class comms {
         // Go through every message that isnt null
         while (broadcastInfo != null) {
             int value = broadcastInfo.getMessage();
-//            uc.println("the message value is " + value);
-            Buffer.add(value);
+
+            // Skip the null messages
+            if (value != nullMessage) {
+                Buffer.add(value);
+            }
             broadcastInfo = uc.pollBroadcast();
         }
 
@@ -69,6 +75,14 @@ public class comms {
 //            uc.println("Try to call this function only on odd turns");
         }
         uc.performAction(ActionType.BROADCAST, null, value);
+    }
+
+    // Use this after polling everything to add it back
+    public void commBroadcast(Buffer buffer) {
+        // Cycle through and broadcast the information
+        for (int index = 0; index < buffer.size(); index ++) {
+            commBroadcast(buffer.get(index));
+        }
     }
 
     // got to be better way to do this but I am lazy
@@ -89,5 +103,58 @@ public class comms {
         boolean c = (value & 1) != 0;
 
         return new boolean[] { a, b, c };
+    }
+
+    // This will add the number of null messages needed
+    // TODO: Each HQ will add this, for now going to mod it but idk may fix this later
+    public void setupHackComms () {
+        for (int i = 0; i < howManyNullMessages; i ++) {
+            uc.performAction(ActionType.BROADCAST, null, nullMessage);
+        }
+    }
+
+    // Send 0-6 inclusively using comm hacks
+    // NOTE: Dont send the same value twice or issues will occur
+    public void sendHackInt (int value) {
+        for (int i = 0; i < 1 << (value); i ++) {
+            uc.pollBroadcast();
+        }
+    }
+
+    public boolean[] getAllHack() {
+
+        if (uc.getRound() % 2 != 1) {
+            uc.println("Try doing this function every odd turn");
+        }
+
+        // See how much info is left in the broadcast
+        // TODO: I am moding it becasue there is more than 1 HQ adding these in but I can add logic later to make this more optimal
+        BroadcastInfo broadcastInfo = uc.pollBroadcast();
+        int count = 0;
+
+        // Go through every message that isnt null
+        while (broadcastInfo != null) {
+            int value = broadcastInfo.getMessage();
+
+            // Count all the null messages
+            if (value == nullMessage) {
+                count++;
+            }
+            broadcastInfo = uc.pollBroadcast();
+        }
+
+        count = count % howManyNullMessages;
+
+        // See how many polls have occured
+        int numPolls = howManyNullMessages - count;
+
+        // Convert the int into a boolean array of size lengthOfBooleanMessage
+        boolean[] message = new boolean[lengthOfBooleanHackMessage];
+        for (int index = 0; index < lengthOfBooleanHackMessage; index ++) {
+            message[index] = numPolls % 2 == 1;
+            numPolls = numPolls >> 1;
+        }
+
+        return message;
     }
 }

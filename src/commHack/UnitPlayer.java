@@ -60,7 +60,25 @@ public class UnitPlayer {
             // Send the our initial positions
             // NOTE: this will be used by the HQs to start then it will contain what the bots should do
             int holder = map.locationToInt(uc.getLocation());
-//            uc.println("trying to save value " + holder);
+
+//             If this is empty I am first, then broadcast so others know they arent first
+            Buffer amINotFirst = comms.getAllComms();
+
+            uc.println("the comms are " + amINotFirst);
+
+            if (amINotFirst.isEmpty()) {
+                // Set to I am first then broadcast to others
+                constants.isFirstHQ = true;
+//                uc.performAction(ActionType.BROADCAST, null, comms.nullMessage);
+            } else {
+                // set to I am not first and poll so that the broadcast is empty
+                constants.isFirstHQ = false;
+                // broadcast the buffer so that it can stay there for future turns
+
+            }
+
+            uc.println("I am first is " + constants.isFirstHQ);
+
             comms.commBroadcast(holder);
 
         } else {
@@ -99,6 +117,27 @@ public class UnitPlayer {
                 uc.println("I am HQ going to do HQ stuff");
 
                 map.record(uc);
+
+//                // Figure out which HQ is first turn
+//                // TODO: Fix this when the first HQ is taken down
+//                if (uc.getRound() == 1) {
+//                    // If this is empty I am first, then broadcast so others know they arent first
+//                    Buffer amINotFirst = comms.getAllComms();
+//
+//                    uc.println("the comms are " + amINotFirst);
+//
+//                    if (amINotFirst.isEmpty()) {
+//                        // Set to I am first then broadcast to others
+//                        constants.isFirstHQ = true;
+//                        uc.performAction(ActionType.BROADCAST, null, comms.nullMessage);
+//                    } else {
+//                        // set to I am not first and poll so that the broadcast is empty
+//                        constants.isFirstHQ = false;
+//                        uc.pollBroadcast();
+//                    }
+//
+//                    uc.println("I am first is " + constants.isFirstHQ);
+//                }
 
                 // Turn 2 as HQ we are going to get all broadcasted ally HQ locations
                 if (uc.getRound() == 2) {

@@ -83,16 +83,17 @@ public class target {
         return best;
     }
 
-    // TODO: Should prob favor HQ over regular structure
     public Location getClosestEnemyStructure(UnitController uc) {
         int dist = constants.maxDist;
         Location best = null;
+        StructureType structTpye = null;
         for (int index = 0; index < map.opponentStructures.length; index ++) {
                 Location tempBest = map.opponentStructureLocs[index];
                 int tempDist = uc.getLocation().distanceSquared(tempBest);
-                if (tempDist < dist) {
+                if (tempDist < dist && (structTpye == null || map.opponentStructures[index].getType().equals(StructureType.HQ) || map.opponentStructures[index].getType().equals(structTpye))) {
                     dist = tempDist;
                     best = tempBest;
+                    structTpye = map.opponentStructures[index].getType();
                 }
         }
 

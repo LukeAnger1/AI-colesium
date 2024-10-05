@@ -49,39 +49,23 @@ public class navigation {
         dir = bug(start, end);
         if (dir != null) {
             uc.performAction(ActionType.MOVE, dir, 0);
+            return;
         }
 
         // TODO: Add logic that gives good gues at direction if too many astruanauts for bug
         dir = sixthWestPathFinding(start, end);
         if (dir != null) {
-            uc.println("doing the sixth west shit");
             uc.performAction(ActionType.MOVE, dir, 0);
+            return;
         }
 
-//        dir = broWTF(uc, start, tempEnd);
-//        uc.println("bro wtf returned " + dir);
-//        if (dir != null) {
-//            uc.println("doing bro wtf");
-//            uc.performAction(ActionType.MOVE, dir, 0);
-//        }
-
         // If there is a goal location go in that direction
-//        dir = greedyBFS(uc, start, end);
-//        if (dir != null){
-//            uc.performAction(ActionType.MOVE, dir, 0);
-//            return;
-//        }
-
-        // If there is a goal location go in that direction
-        // NOTE: Make sure this is never ran as greedyBFS should always run and domintate
-        // IMPORTANT TODO: End code once moved
         dir = basicDumbAssGoingInLine(uc, start, end);
         uc.println("going to try to move in " + dir + " using basic dumb ass");
         if (dir != null){
             uc.performAction(ActionType.MOVE, dir, 0);
             return;
         }
-
 
         // Move to explore
         dir = explorationDirection(uc);

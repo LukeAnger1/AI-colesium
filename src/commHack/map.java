@@ -157,29 +157,6 @@ public class map {
         // NOTE: This is for bots
         bots = helper.combineArrays(myAstronautLocs, oponnentAstronautLocs);
 
-//        uc.println("checking amount left inside map 5 " + uc.getPercentageOfEnergyLeft());
-
-        // This is the array of everything that is in the way
-//        obstacles = helper.combineArrays(uc, myAstronautLocs, oponnentAstronautLocs, domes, water);
-
-        ///// Use this for debuging the map, causes too much energy loss (byte code loss)
-//        for (int x = 0; x < this.x; x ++) {
-//            for (int y = 0; y < this.y; y++) {
-//                // mark the water
-//                if (this.grid_shit[x][y] == constants.water) {
-//                    uc.drawPointDebug(new Location(x, y), 0, 0, 255);
-//                }
-////                // mark the land
-////                if (grid_shit[x][y] == StructureTypeByte.LANDS.getValue()) {
-////                    uc.drawPointDebug(new Location(x, y), 0, 255, 0);
-////                }
-//            }
-//        }
-
-//        uc.println("checking amount left inside map 6 " + uc.getPercentageOfEnergyLeft());
-
-        ///// Use this for debugging the map
-
     }
 
     // Add a travel square for transportation
